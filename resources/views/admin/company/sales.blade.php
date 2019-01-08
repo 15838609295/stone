@@ -4,7 +4,9 @@
 
 @section('pageHeader','')
 
-@section('pageDesc',"企业管理   >>   $name")
+@section('pageDesc')
+<a href="/admin/company/index">企业管理</a>  >>  <a href="/admin/company/{{$id}}/sales">{{$name}}</a>
+@stop
 
 @section('css')
 @stop
