@@ -283,7 +283,7 @@ class WechatController   extends Controller
         }
 
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price')
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price','g.remarks as godown_remarks','s.remarks as sale_remarks')
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
             ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
@@ -329,10 +329,17 @@ class WechatController   extends Controller
         }
 
         $res = $godown->orderBy('g.id','desc')->skip($start)->take(10)->get();
-
         if(!$res){
             return $this->verify_parameter('查不到数据',0);
         }
+
+        // 备注
+        foreach ($res as $k => &$v) {
+            // 调度单备注，开切单备注
+            $v->dispatch_remarks = Dispatch::where('godown_id', $v->id)->value('remarks');
+            $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
+        }
+
 		$this->result['total'] = $total;
         $this->result['data'] = $res;
         return response()->json($this->result);
