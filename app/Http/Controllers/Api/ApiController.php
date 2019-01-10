@@ -486,23 +486,36 @@ class ApiController  extends Controller{
         return response()->json($this->result);
     }
 
-    //修改产品图片
-    public function updateGoDownImg(Request $request){
+    /**
+     * 修改产品图片
+     *
+     * @param $godown_id
+     * @param $godown_pic 数组
+     * @param $member_name
+     * @param $del_godown_pic 数组
+     */
+    public function updateGoDownImg(Request $request) {
         $data = $request->post();
 
-        //判断传值是否正确
-        if(!isset($data['godown_id']) || trim($data['godown_id']) == ''){
+        // 判断传值是否正确
+        if (!isset($data['godown_id']) || trim($data['godown_id']) == '') {
             return $this->verify_parameter('godown_id'); //返回必传参数为空
         }
-        if(!isset($data['godown_pic']) || $data['godown_pic'] == ''){
+        if (!isset($data['godown_pic']) || $data['godown_pic'] == '') {
             return $this->verify_parameter('godown_pic'); //返回必传参数为空
         }
-        if(!isset($data['member_name']) || trim($data['member_name']) == ''){
+        if (!isset($data['member_name']) || trim($data['member_name']) == '') {
             return $this->verify_parameter('member_name'); //返回必传参数为空
+        }
+        if (!isset($data['del_godown_pic']) || trim($data['del_godown_pic']) == '') {
+            return $this->verify_parameter('del_godown_pic'); //返回必传参数为空
+        }
+        if (!isset($data['member_id']) || trim($data['member_id']) == '') {
+            return $this->verify_parameter('member_id'); //返回必传参数为空
         }
 
         $bool = Godown::where('id','=',$data['godown_id'])->update(['godown_pic' => implode(',', $data['godown_pic'])]);
-        if(!$bool){
+        if (!$bool) {
             return $this->verify_parameter('操作失败！请联系管理员',0);
         }
 
@@ -512,9 +525,15 @@ class ApiController  extends Controller{
             ->where('g.id','=',$data['godown_id'])
             ->first();
 
+        //记录操作日志(删除图片)
+        $cu = CompanyUser::where('user_id','=',$data['member_id'])->where('company_id','=',$godown['company_id'])->value('is_admin');
+        for ($i=0; $i < count($data['del_godown_pic']); $i++) {
+            $this->adminLog($godown['company_id'],2,'删除图片',$data['member_id'],CompanyUser::IS_ADMIN[$cu->is_admin]);
+        }
+
+        //记录工作日志
         $content = $data['member_name'].'修改了产品编号为<text class="orange">'.$godown->godown_no.'</text>的产品图片';
         $this->goWorkLog($godown->company_id,'产品修改',$content,$godown->id);
-
         return response()->json($this->result);
     }
 

@@ -146,6 +146,56 @@ class UserController
         return response()->json($this->result);
     }
 
+    /**
+     * 查询公司用户图库记录
+     */
+    public function getCompanyUserGalleyLog(Request $request) {
+        $data = $request->post();
+
+        // 判断传值是否正确
+        if (!isset($data['company_id']) || trim($data['company_id']) == '') {
+            return $this->verify_parameter('company_id'); //返回必传参数为空
+        }
+        if (!isset($data['user_id']) || trim($data['user_id']) == '') {
+            return $this->verify_parameter('user_id'); //返回必传参数为空
+        }
+
+        $adminLog = AdminLog::where('company_id', '=', $data['company_id'])->where('user_id', '=', $data['user_id'])->where('type', '=', 2);
+        $adminCount =  AdminLog::where('company_id', '=', $data['company_id'])->where('user_id', '=', $data['user_id'])->where('type', '=', 2);
+
+        if(isset($data['start_time']) && $data['start_time'] != ''){
+            if(isset($data['end_time']) && $data['end_time'] != ''){
+                $adminLog->whereBetween('created_at', [$data['start_time'], $data['end_time']]);
+                $adminCount->whereBetween('created_at', [$data['start_time'], $data['end_time']]);
+            }else{
+                $adminLog->where('created_at', '>=', $data['start_time']);
+                $adminCount->where('created_at', '>=', $data['start_time']);
+            }
+        }
+        if(isset($data['end_time']) && $data['end_time'] != ''){
+            $adminLog->where('created_at', '<', $data['end_time']);
+            $adminCount->where('created_at', '<', $data['end_time']);
+        }
+
+        // 删除图片数量
+        $total = $adminCount->count();
+        $numb = $adminCount->where('content', '=', '删除图片')->count();
+
+        // 总操作数
+        $this->result['total'] = $total - $numb;
+
+        $start = 0;
+        $pageSize = 10;
+        if(isset($data['page_size']) && $data['page_size'] != ''){
+            $pageSize = $data['page_size'];
+        }
+        if(isset($data['page']) && $data['page'] != ''){
+            $start = ((int)$data['page']-1) * $pageSize;
+        }
+        $this->result['data'] = $adminLog->orderBy('id', 'desc')->skip($start)->take($pageSize)->get();
+        return response()->json($this->result);
+    }
+
     // 修改用户信息
     public function updateUser(Request $request){
         $data = $request->post();

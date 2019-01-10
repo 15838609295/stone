@@ -25,33 +25,42 @@ class CommonController
     public $result = array("status"=>0,'msg'=>'请求成功','data'=>"");
     
 	//初始化各项配置
-	public function __construct(){
-		
-	}
+	public function __construct() {}
 	
-	//小程序上传图片接口
-	public function uploadImsage(Request $request){
+	/**
+     * 小程序上传图片接口（记录图片上传成功数量）
+     *
+     * @param mem_id
+     * @param comp_id
+     * @param file
+     */
+	public function uploadImsage(Request $request) {
 		$file = $request->file("file");
-        if (!$file){
+        if (!$file) {
             $this->result["status"] = 1;
             $this->result["msg"] = "上传失败,请重试";
-        }else{
+            return $this->result;
+        }
 
-            $res = (new UploadFile([
-                "upload_dir" =>"./uploads/picture/",
-                "type"       =>["image/jpg","image/png","image/jpeg","image/bmp","image/gif"]]
-             ))->upload($file);
-          
-            if($res["status"] == 0)
-            {
-                $arr = array();
-                $arr['url'] = $res["data"];
-                $this->result["data"]  = $arr;
+        $res = (new UploadFile([
+            "upload_dir" => "./uploads/picture/",
+            "type" => ["image/jpg","image/png","image/jpeg","image/bmp","image/gif"]]
+        ))->upload($file);
+      
+        if ($res["status"] == 0) {
+            $arr = ['url' => $res["data"]];
+            $this->result["data"] = $arr;
+
+            // 存储图集：用户ID，公司ID
+            $data = $request->post();
+            if (isset($data['member_id']) && trim($data['member_id'] != '') && 
+                isset($data['company_id']) && trim($data['company_id'] != '')) {
+                $cu = CompanyUser::where('user_id','=',$data['member_id'])->where('company_id','=',$data['company_id'])->first();
+                $this->adminLog($data['company_id'],2,'上传图片',$data['member_id'],CompanyUser::IS_ADMIN[$cu->is_admin]);
             }
         }
         return $this->result;
 	}
-
 
     // 获取套餐信息
     public function getMonthly(Request $request){
@@ -510,9 +519,21 @@ class CommonController
             return $company_number;
         }
     }
+
+    //记录操作日志的函数
+    private function goWorkLog($company_id,$title,$content,$godown_id=0) {
+        $log = array();
+        $log['title'] = $title;
+        $log['godown_id'] = $godown_id;
+        $log['company_id'] = $company_id;
+        $log['content'] = $content;
+        $log['created_at'] = Carbon::now()->toDateTimeString();
+        $log['updated_at'] = Carbon::now()->toDateTimeString();
+        Worklog::insertGetId($log);
+    }
     
     //操作记录方法
-    private function adminLog($company_id,$type,$content,$user_id,$identity){
+    private function adminLog($company_id,$type,$content,$user_id,$identity) {
         $adminArr = array();
         $adminArr['company_id'] = $company_id;
         $adminArr['type'] = $type;
@@ -521,7 +542,6 @@ class CommonController
         $adminArr['identity'] = $identity;
         $adminArr['created_at'] = Carbon::now()->toDateTimeString();
         $adminArr['updated_at'] = Carbon::now()->toDateTimeString();
-
         AdminLog::insert($adminArr);
     }
 

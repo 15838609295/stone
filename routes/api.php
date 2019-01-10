@@ -55,7 +55,7 @@ Route::any('turnCompanyList','Api\WechatController@turnCompanyList');  //转让�
 Route::any('getTransferCompanyStatus','Api\WechatController@getTransferCompanyStatus');  //转让企业状态
 
 //公共接口
-Route::any('uploadImsage','Api\CommonController@uploadImsage');  //图片上传
+Route::any('uploadImsage','Api\CommonController@uploadImsage');  // 图片上传
 Route::any('getMonthly','Api\CommonController@getMonthly');  //获取套餐信息
 Route::any('createCompany','Api\CommonController@createCompany');  //创建企业
 Route::any('joinCompany','Api\CommonController@joinCompany');  //加入企业
@@ -71,4 +71,5 @@ Route::any('getGoodsAttr','Api\CommonController@getGoodsAttr');  //查询品种
 Route::any('getCompanyUserInfo','Api\UserController@getCompanyUserInfo');  //查询公司用户信息
 Route::any('getCompanyUserLoginLog','Api\UserController@getCompanyUserLoginLog');  //查询公司用户登录记录
 Route::any('getCompanyUserActionLog','Api\UserController@getCompanyUserActionLog');  //查询公司用户操作记录
+Route::any('getCompanyUserGalleyLog','Api\UserController@getCompanyUserGalleyLog');  //查询公司用户图库记录
 Route::any('updateUser','Api\UserController@updateUser');  //修改用户信息
