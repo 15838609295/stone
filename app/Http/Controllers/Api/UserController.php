@@ -61,7 +61,7 @@ class UserController
         }
 
         $res = Company::from('company as c')
-            ->select('m.realname','c.company_name','cu.is_admin')
+            ->select('m.realname','c.company_name','cu.is_admin','cu.join_time')
             ->join('company_user as cu', 'cu.company_id', '=', 'c.id')
             ->join('members as m', 'cu.user_id', '=', 'm.id')
             ->where('c.id', '=', $data['company_id'])
