@@ -1266,7 +1266,7 @@ class ApiController  extends Controller{
         if(isset($data['soso']) && trim($data['soso']) != ''){
             $opencut->where(function ($query) use ($data){
                 $query->where('g.godown_no','like','%'.$data['soso'].'%')
-                    ->orwhere('o.remarks','like','%'.$data['soso'].'%');
+                    ->orWhere('o.remarks','like','%'.$data['soso'].'%');
             });
         }
 
@@ -2024,7 +2024,7 @@ class ApiController  extends Controller{
         if(isset($data['soso']) && trim($data['soso']) != ''){
             $sale->where(function ($query) use ($data){
                 $query->where('g.godown_no','like','%'.$data['soso'].'%')
-                    ->orwhere('s.remarks','like','%'.$data['soso'].'%');
+                    ->orWhere('s.remarks','like','%'.$data['soso'].'%');
             });
         }
 

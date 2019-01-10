@@ -220,25 +220,29 @@ class WechatController   extends Controller
         return response()->json($this->result);
     }
 
-    //数据库列表
-    public function databaseList(Request $request){
+    /**
+     * 数据库列表
+     *
+     * @param rk_sort - 入库时间（1升，0降）
+     * @param st_sort - 库存数量（1升，0降）
+     * @param xs_sort - 已销售额（1升，0降）
+     */
+    public function databaseList(Request $request) {
         $data = $request->post();
 
-        //判断传值是否正确
+        // 判断传值是否正确
         if(!isset($data['company_id']) || trim($data['company_id']) == ''){
             return $this->verify_parameter('company_id'); //返回必传参数为空
         }
 
-        //判断是否有可选参数
+        // 判断是否有可选参数
         if(!isset($data['page']) || trim($data['page']) == ''){
             $data['page'] = 1;
         }
         $start = ((int)$data['page']-1)*10;  //截取部分数据
 
-
         $godownIds = array();
         if(isset($data['soso']) &&  trim($data['soso']) != ''){
-
             $arr1 = Dispatch::where('remarks', 'like', '%'.$data['soso'].'%')->get(['godown_id']);
             $arr2 = JoinDepot::from('joindepot as j')
                 ->select('g.id as godown_id')
@@ -248,41 +252,40 @@ class WechatController   extends Controller
             $arr3 = Opencut::where('remarks', 'like', '%'.$data['soso'].'%')->get(['godown_id']);
             $arr4 = Sale::where('remarks', 'like', '%'.$data['soso'].'%')->get(['godown_id']);
 
-            if($arr1){
+            if ($arr1) {
                 foreach ($arr1 as $v){
                     if(!in_array($v->godown_id, $godownIds)){
                         $godownIds[] = $v->godown_id;
                     }
                 }
             }
-            if($arr2){
+            if ($arr2) {
                 foreach ($arr2 as $v){
                     if(!in_array($v->godown_id, $godownIds)){
                         $godownIds[] = $v->godown_id;
                     }
                 }
             }
-            if($arr3){
+            if ($arr3) {
                 foreach ($arr3 as $v){
                     if(!in_array($v->godown_id, $godownIds)){
                         $godownIds[] = $v->godown_id;
                     }
                 }
             }
-            if($arr4){
+            if ($arr4) {
                 foreach ($arr4 as $v){
                     if(!in_array($v->godown_id, $godownIds)){
                         $godownIds[] = $v->godown_id;
                     }
                 }
             }
-
         }
 
-
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end')
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price')
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
+            ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
             ->where('d.company_id','=',$data['company_id']);
 
@@ -304,7 +307,27 @@ class WechatController   extends Controller
                     ->orwhere('g.godown_no','like','%'.$data['soso'].'%');
             });
         }
-		$total =  $godown->count();
+		$total = $godown->count();
+
+        // 排序: rk_sort-入库时间，st_sort-库存数量，xs_sort-已销售额
+        if (isset($data['rk_sort']) && (1 == $data['rk_sort'])) {
+            $godown->orderBy('g.created_at','asc');
+        } else {
+            $godown->orderBy('g.created_at','desc');
+        }
+
+        if (isset($data['st_sort']) && (1 == $data['st_sort'])) {
+            $godown->orderBy('g.godown_number','asc');
+        } else {
+            $godown->orderBy('g.godown_number','desc');
+        }
+
+        if (isset($data['xs_sort']) && (1 == $data['xs_sort'])) {
+            $godown->orderBy('s.sale_total_price','asc');
+        } else {
+            $godown->orderBy('s.sale_total_price','desc');
+        }
+
         $res = $godown->orderBy('g.id','desc')->skip($start)->take(10)->get();
 
         if(!$res){
@@ -313,7 +336,6 @@ class WechatController   extends Controller
 		$this->result['total'] = $total;
         $this->result['data'] = $res;
         return response()->json($this->result);
-
     }
 
     //产品操作记录查询

@@ -121,7 +121,17 @@ class UserController
             $adminCount->where('created_at', '<', $data['end_time']);
         }
 
-        $this->result['total'] = $adminCount->count();
+        // 总操作数
+        $total = $adminCount->count();
+
+        // 新增员工操作数，删除员工操作数
+        $numb = $adminCount->where(function($query) {
+                    $query->where('content', 'like', '新增员工%')
+                          ->orWhere('content', 'like', '删除员工%')
+                })->count();
+
+        // 剔除增减员工操作数
+        $this->result['total'] = $total - $numb;
 
         $start = 0;
         $pageSize = 10;
