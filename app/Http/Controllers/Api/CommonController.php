@@ -30,8 +30,8 @@ class CommonController
 	/**
      * 小程序上传图片接口（记录图片上传成功数量）
      *
-     * @param mem_id
-     * @param comp_id
+     * @param member_id
+     * @param company_id
      * @param file
      */
 	public function uploadImsage(Request $request) {

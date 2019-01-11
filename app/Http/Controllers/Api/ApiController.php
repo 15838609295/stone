@@ -493,6 +493,7 @@ class ApiController  extends Controller{
      * @param $godown_pic 数组
      * @param $member_name
      * @param $del_godown_pic 数组
+     * @param $member_id 用户ID
      */
     public function updateGoDownImg(Request $request) {
         $data = $request->post();
