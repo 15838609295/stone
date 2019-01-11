@@ -229,7 +229,6 @@ class CompanyController extends Controller{
             // $data['total'] = count($new);
             $data['rows'] = $new;
             return response()->json($data);
-
         }
         return view('admin.company.depots',array('id'=>$id,'name' => Company::find($id)->company_name));
     }
