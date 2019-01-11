@@ -57,6 +57,7 @@ html.ios-fix body {
 }
 .content {
   min-height: 500px;
+  overflow:auto;
 }
 #header {
   background: #fff;
