@@ -36,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         });
         $this->registerPolicies($gate);
 
-        $permissions = \App\Models\Admin\Permission::with('roles')->get();
+        $permissions = \App\Models\Admin\Permission::with('roles')->orderBy('sort','asc')->get();
 
         foreach ($permissions as $permission) {
             $gate->define($permission->name, function ($user) use ($permission) {
