@@ -42,6 +42,7 @@ class GetMenu
             return \App\Models\Admin\Permission::where('name', 'LIKE', '%index')
               	->where('display','0')
                 ->orWhere('cid', 0)
+                ->orderBy('sort', 'asc')
                 ->get();
         });
         foreach ($table as $v) {
