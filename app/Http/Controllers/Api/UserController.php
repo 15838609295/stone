@@ -127,7 +127,7 @@ class UserController
         // 新增员工操作数，删除员工操作数
         $numb = $adminCount->where(function($query) {
                     $query->where('content', 'like', '新增员工%')
-                          ->orWhere('content', 'like', '删除员工%')
+                          ->orWhere('content', 'like', '删除员工%');
                 })->count();
 
         // 剔除增减员工操作数
@@ -359,7 +359,7 @@ class UserController
         // 新增员工操作数，删除员工操作数
         $numb = $adminCount->where(function($query) {
                     $query->where('content', 'like', '新增员工%')
-                          ->orWhere('content', 'like', '删除员工%')
+                          ->orWhere('content', 'like', '删除员工%');
                 })->count();
 
         // 总操作数
