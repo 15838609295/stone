@@ -110,6 +110,10 @@ Route::group(['middleware' => ['auth:admin', 'menu', 'authAdmin']], function () 
     Route::any('market_godown/index', ['as' => 'admin.market_godown.index', 'uses' => 'MarketController@godownList']);
     Route::any('companyinfo/index', ['as' => 'admin.companyinfo.index', 'uses' => 'CompanyinfoController@index']);
 
+    // 历史记录
+    Route::any('recharge/index', ['as' => 'admin.recharge.index', 'uses' => 'RecordController@rechargeList']);
+    Route::any('apply/index', ['as' => 'admin.apply.index', 'uses' => 'RecordController@applyList']);
+
 });
 
 Route::get('/', function () {
