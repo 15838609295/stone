@@ -67,9 +67,15 @@ Route::any('getCompanyGoDown','Api\CommonController@getCompanyGoDown');  //获�
 Route::any('getCompanyGoDownList','Api\CommonController@getCompanyGoDownList');  //获取单个公司产品信息列表
 Route::any('getGoodsAttr','Api\CommonController@getGoodsAttr');  //查询品种
 
-// 用户相关接口
+// 账号相关接口
 Route::any('getCompanyUserInfo','Api\UserController@getCompanyUserInfo');  //查询公司用户信息
 Route::any('getCompanyUserLoginLog','Api\UserController@getCompanyUserLoginLog');  //查询公司用户登录记录
 Route::any('getCompanyUserActionLog','Api\UserController@getCompanyUserActionLog');  //查询公司用户操作记录
 Route::any('getCompanyUserGalleyLog','Api\UserController@getCompanyUserGalleyLog');  //查询公司用户图库记录
 Route::any('updateUser','Api\UserController@updateUser');  //修改用户信息
+
+// 企业相关接口
+Route::any('getCompanyLoginLog','Api\UserController@getCompanyLoginLog');  //查询企业登录记录
+Route::any('getCompanyActionLog','Api\UserController@getCompanyActionLog');  //查询企业操作记录
+Route::any('getCompanyGalleyLog','Api\UserController@getCompanyGalleyLog');  //查询企业图库记录
+Route::any('getCompanyVisitLog','Api\UserController@getCompanyVisitLog');  //查询企业访问记录
