@@ -226,7 +226,7 @@ class CompanyController extends Controller{
 
             array_unshift($new,$newarr);
 
-            $data['total'] = count($new);
+            // $data['total'] = count($new);
             $data['rows'] = $new;
             return response()->json($data);
 
