@@ -14,6 +14,7 @@ use App\Models\Admin\Members;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Admin\Worklog;
+use App\Models\Admin\CompanyUser;
 
 class UserController
 {
