@@ -67,11 +67,11 @@ class RecordController extends Controller {
 			$total = Worklog::from('work_log as wl')
 					->select('wl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
-					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
+					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			$rows = Worklog::from('work_log as wl')
 					->select('wl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
-					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
+					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			
 	        if (trim($search)) {
 	        	$total->where(function ($query) use ($search) {
