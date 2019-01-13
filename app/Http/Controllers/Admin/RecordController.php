@@ -90,7 +90,7 @@ class RecordController extends Controller {
 	        $lists = $rows->skip($start)->take($pageSize)
 					        ->orderBy($sortName, $sortOrder)
 					        ->get();
-			if (! $lists) {
+			if ($lists) {
 				foreach ($lists as $k => &$v) {
 					$v->identity = CompanyUser::IS_ADMIN[$v->is_admin];
 				}
