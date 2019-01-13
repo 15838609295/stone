@@ -60,14 +60,13 @@ class WechatController   extends Controller
      * 获取小程序码
      */
     public function getWXACodeUnlimit (Request $request) {
-        $data = $request->post();
-        $scene = json_encode($data);
-        $res = $this->getQrcode($this->wechat_appid, $this->wechat_secret, $scene);
-        $resData = json_decode($res, true);
+        $scene = json_encode($request->post());
+        $data = $this->getQrcode($this->wechat_appid, $this->wechat_secret, $scene);
+        $resData = json_decode($data, true);
         if (isset($resData['errcode']) && $resData['errcode']) {
             return $this->verify_parameter($resData['errmsg'], 0);
         }
-        $this->result['data'] = $res;
+        $this->result['data'] = $data;
         return response()->json($this->result);
     }
 
