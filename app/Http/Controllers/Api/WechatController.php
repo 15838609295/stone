@@ -140,7 +140,6 @@ class WechatController   extends Controller
 
         $this->result['data'] = $return;
         return response()->json($this->result);
-
     }
 
     //根据openid获取用户信息
@@ -1272,12 +1271,13 @@ fclose($fp);*/
         // 格式自选，不同格式貌似加载速度略有不同，想加载更快可选择jpg
         header('content-type:image/jpg');
         $data = array();
-        $data['page'] = ''; // 路径
+        $data['page'] = 'pages/workbench/workbench'; // 路径
         $data['scene'] = ''; // 场景参数
+        $data['width'] = 430;
         $data = json_encode($data);
         $access = json_decode($this->getAccessToken($appid, $secret), true);
         $access_token= $access['access_token'];
-        $url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" . $access_token;
+        $url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=".$access_token;
         return $this->getHttpArray($url, $data);
     }
 
