@@ -67,7 +67,7 @@ class WechatController   extends Controller
             return $this->verify_parameter($resData['errmsg'], 0);
         }
         // $this->result['data'] = $data;
-        return $data;
+        return response()->($data, 200);
     }
 
     /**
