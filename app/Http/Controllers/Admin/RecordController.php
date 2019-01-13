@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\Worklog;
 use App\Models\Admin\PaymentLog;
 use App\Models\Admin\CompanyUser;
+use App\Models\Admin\Members;
 
 use App\Http\Controllers\Controller;
 
@@ -27,8 +28,9 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  // 搜索条件
 			
 			$total = PaymentLog::from('payment_log as pl')
-					->select('pl.*', 'c.company_name', 'm.realname')
+					->select('pl.*', 'c.company_name', 'm.realname', 'cu.user_id')
 					->leftJoin('company as c', 'c.id', '=', 'pl.company_id')
+					->leftJoin('company_user as cu', 'cu.company_id', '=', 'c.id')
 					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
 			$rows = PaymentLog::from('payment_log as pl')
 					->select('pl.*', 'c.company_name', 'm.realname')
@@ -45,9 +47,15 @@ class RecordController extends Controller {
 	        }
 	        
 	        $data['total'] = $total->count();
-	        $data['rows'] = $rows->skip($start)->take($pageSize)
+	        $lists = $rows->skip($start)->take($pageSize)
 					        ->orderBy($sortName, $sortOrder)
 					        ->get();
+			if ($lists) {
+				foreach ($lists as $k => &$v) {
+					$v->opername = Members::where('id', $v->user_id)->value('realname');
+				}
+			}
+			$data['rows'] = $lists;
 	        return response()->json($data);
         }
         return view('admin.record.recharge');

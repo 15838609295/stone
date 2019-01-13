@@ -152,7 +152,7 @@ class PayController{
                 }
 
                 // 添加充值记录
-                $cu = CompanyUser::where('user_id', '=', $order->user_id)->where('company_id', '=', $data->company_id)->first();
+                $cu = CompanyUser::where('user_id', '=', $order->user_id)->where('company_id', '=', $order->company_id)->first();
                 $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $monthly->money, $monthly->month);
             }
         }

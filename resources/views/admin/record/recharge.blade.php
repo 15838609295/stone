@@ -96,6 +96,7 @@
                 {field:'created_at', title: '时间'},
                 {field:'company_name', title: '企业名称'},
                 {field:'realname', title: '企业主姓名'},
+                {field:'opername', title: '操作人'},
                 {field:'money', title: '充值金额'},
                 {field:'month', title: '充值天数'}
             ]]
