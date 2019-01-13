@@ -1272,7 +1272,7 @@ fclose($fp);*/
         header('content-type:image/jpg');
         $data = array();
         $data['page'] = 'pages/workbench/workbench'; // 路径
-        $data['scene'] = ''; // 场景参数
+        $data['scene'] = '123456'; // 场景参数
         $data['width'] = 430;
         $data = json_encode($data);
         $access = json_decode($this->getAccessToken($appid, $secret), true);
