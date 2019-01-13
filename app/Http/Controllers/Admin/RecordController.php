@@ -6,6 +6,7 @@ use App\Models\Admin\AdminUser;
 use Illuminate\Http\Request;
 use App\Models\Admin\Worklog;
 use App\Models\Admin\PaymentLog;
+use App\Models\Admin\CompanyUser;
 
 use App\Http\Controllers\Controller;
 
