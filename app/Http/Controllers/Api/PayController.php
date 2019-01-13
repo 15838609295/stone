@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Admin\AdminLog;
+use App\Models\Admin\PaymentLog;
 use App\Models\Admin\Company;
 use App\Models\Admin\CompanyUser;
 use App\Models\Admin\Configs;
@@ -50,8 +51,14 @@ class PayController{
 
     }
   
-     //去支付
-    public function goPay(Request $request){
+    /**
+     * 微信支付
+     *
+     * @param company_id
+     * @param user_id
+     * @param monthly_id
+     */
+    public function goPay(Request $request) {
         $data = $request->post();
 
         if(!isset($data['company_id']) || trim($data['company_id']) == ''){
@@ -109,51 +116,51 @@ class PayController{
         return response()->json($this->result);
     }
 
-    //充值异步通知
-    public function notify(Request $request){
+    /**
+     * 微信支付异步通知
+     */
+    public function notify(Request $request) {
         $xml = file_get_contents("php://input");
         $data = $this->xmlToArray($xml);
-      
-
-/*$fp = fopen('./file1.txt', 'a+b');
-fwrite($fp, "\r\n".print_r($data,true));
-fclose($fp);*/
-      
-        if($data['result_code']=='SUCCESS'){
-            if($data['return_code']=='SUCCESS'){
-              
+        if ($data['result_code']=='SUCCESS') {
+            if ($data['return_code']=='SUCCESS') {
+                // 验证订单状态，判断是否已支付
                 $order = Order::where('order_sn','=',$data['out_trade_no'])->first();
-              
-              	if($order->pay_status == 1){
-                	echo 'success';die;
+              	if ($order->pay_status == 1) {
+                	echo 'success'; die;
                 }
-              
+                
+                // 更新订单状态和支付时间
                 $data_upd['pay_status'] = 1;
                 $data_upd['pay_time'] = $data['time_end'];
+                $bool = Order::where('order_sn', '=', $data['out_trade_no'])->update($data_upd);
+                if (! $bool) {
+                    echo 'failed'; die;
+                }
 
-                $bool= Order::where('order_sn','=',$data['out_trade_no'])->update($data_upd);
-
-                $monthly = Monthly::where('id','=',$order->monthly_id)->first();
-				
-                $company = Company::where('id','=',$order->company_id)->first();
-                
-                if(!empty($company->volid_time) && $company->volid_time > Carbon::now()->toDateTimeString()){
+                // 更新企业有效时间
+                $monthly = Monthly::where('id', '=', $order->monthly_id)->first();
+                $company = Company::where('id', '=', $order->company_id)->first();
+                if (!empty($company->volid_time) && $company->volid_time > Carbon::now()->toDateTimeString()) {
                     $upd['volid_time'] = Carbon::parse($company->volid_time)->modify('+'.$monthly->month.' days')->toDateTimeString();
-                }else{
+                } else {
                     $upd['volid_time'] = Carbon::parse('+'.$monthly->month.' days')->toDateTimeString();
                 }
-
-                Company::where('id','=',$order->company_id)->update($upd);
-              
-                if($bool){
-                    echo 'success';die;
+                $bool = Company::where('id', '=', $order->company_id)->update($upd);
+                if (! $bool) {
+                    echo 'failed';die;
                 }
+
+                // 添加充值记录
+                $cu = CompanyUser::where('user_id', '=', $order->user_id)->where('company_id', '=', $data->company_id)->first();
+                $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $monthly->money, $monthly->month);
             }
         }
+        echo 'failed'; die;
     }
 
     // 产生订单
-    private function createOrder($user_id,$company_id,$monthly_id,$moeny,$order_sn,$order_name='充值会员'){
+    private function createOrder($user_id,$company_id,$monthly_id,$moeny,$order_sn,$order_name='充值会员') {
         $data['order_sn'] = $order_sn;
         $data['order_name'] = $order_name;
         $data['user_id'] = $user_id;
@@ -261,7 +268,6 @@ fclose($fp);*/
         $log['content'] = $content;
         $log['created_at'] = Carbon::now()->toDateTimeString();
         $log['updated_at'] = Carbon::now()->toDateTimeString();
-
         Worklog::insertGetId($log); //插入数据库
     }
 
@@ -275,8 +281,25 @@ fclose($fp);*/
         $adminArr['identity'] = $identity;
         $adminArr['created_at'] = Carbon::now()->toDateTimeString();
         $adminArr['updated_at'] = Carbon::now()->toDateTimeString();
-
         AdminLog::insert($adminArr);
+    }
+
+    /**
+     * 充值记录
+     */
+    private function paymentLog($order_sn, $ptype, $user_id, $identity, $company_id, $monthly_id, $money, $month) {
+        $model = array();
+        $model['order_sn'] = $order_sn;
+        $model['ptype'] = $ptype;
+        $model['user_id'] = $user_id;
+        $model['identity'] = $identity;
+        $model['company_id'] = $company_id;
+        $model['monthly_id'] = $monthly_id;
+        $model['money'] = $money;
+        $model['month'] = $month;
+        $model['created_at'] = Carbon::now()->toDateTimeString();
+        $model['updated_at'] = Carbon::now()->toDateTimeString();
+        PaymentLog::insert($model);
     }
 
     //产生随机字符串
