@@ -1,10 +1,10 @@
 @extends('admin.layouts.base')
 
-@section('title','企业日志')
+@section('title','充值记录')
 
 @section('pageHeader','')
 
-@section('pageDesc','企业日志')
+@section('pageDesc','充值记录')
 
 @section('css')
 
