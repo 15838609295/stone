@@ -18,7 +18,11 @@ use Illuminate\Http\Request;
 
 class OperateController extends Controller
 {
-    public function user(Request $request){
+
+    /**
+     * 用户列表
+     */
+    public function user (Request $request) {
         if ($request->ajax()) {
             $sortName = $request->post("sortName");    //排序列名
             $sortOrder = $request->post("sortOrder");   //排序（desc，asc）
@@ -36,7 +40,7 @@ class OperateController extends Controller
             $sql .= " from company as c inner join company_user as cu on cu.company_id=c.id";
             $sql .= " inner join members as m on cu.user_id=m.id";
 
-            if($search){
+            if ($search) {
                 $sql .= " and (c.company_name like '%". $search ."%'";
                 $sql .= " or m.mobile like '%". $search ."%' or m.realname like'%". $search ."%')";
             }
@@ -44,7 +48,7 @@ class OperateController extends Controller
             $data['total'] = count(DB::select($sql));
 
             $sql .= " order by ". $sortName ." ". $sortOrder;
-            if($pageSize != 'All'){
+            if ($pageSize != 'All') {
                 $start = ($pageNumber-1)*$pageSize;   //开始位置
                 $sql .= " limit ". $start .','. $pageSize;
             }
@@ -52,7 +56,7 @@ class OperateController extends Controller
             $rows = DB::select($sql);
 			$news = array();
           	
-          	foreach($rows as $k => $v){
+          	foreach ($rows as $k => $v) {
             	$news[$k]['id'] = $v->id;
             	$news[$k]['realname'] = $v->realname;
             	$news[$k]['company_id'] = $v->company_id;
@@ -70,9 +74,7 @@ class OperateController extends Controller
             	$news[$k]['total_j_c'] = sprintf("%.0f", $v->total_j_c);
             }
           	$data['rows'] = $news;
-		
             return response()->json($data);
-
         }
         return view('admin.operate.user');
     }
