@@ -65,12 +65,12 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  //搜索条件
 			
 			$total = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name', 'm.realname')
+					->select('wl.*', 'c.company_name', 'm.realname', 'cu.user_id', 'cu.is_admin')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
 					->leftJoin('company_user as cu', 'cu.company_id', '=', 'c.id')
 					->leftJoin('members as m', 'm.id', '=', 'cu.user_id');
 			$rows = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name', 'm.realname')
+					->select('wl.*', 'c.company_name', 'm.realname', 'cu.user_id', 'cu.is_admin')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
 					->leftJoin('company_user as cu', 'cu.company_id', '=', 'c.id')
 					->leftJoin('members as m', 'm.id', '=', 'cu.user_id');
@@ -87,9 +87,15 @@ class RecordController extends Controller {
 	        }
 	        
 	        $data['total'] = $total->count();
-	        $data['rows'] = $rows->skip($start)->take($pageSize)
+	        $lists = $rows->skip($start)->take($pageSize)
 					        ->orderBy($sortName, $sortOrder)
 					        ->get();
+			if (! $lists) {
+				foreach ($lists as $k => &$v) {
+					$v->identity = CompanyUser::IS_ADMIN[$v->is_admin];
+				}
+			}
+			$data['rows'] = $lists;
 	        return response()->json($data);
         }
         return view('admin.record.apply');
