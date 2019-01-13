@@ -65,13 +65,15 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  //搜索条件
 			
 			$total = Worklog::from('work_log as wl')
-					->select('wl.*','c.company_name')
-					->leftJoin('company as c','c.id','=','wl.company_id');
+					->select('wl.*', 'c.company_name', 'm.realname')
+					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
+					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
 			$rows = Worklog::from('work_log as wl')
-					->select('wl.*','c.company_name')
-					->leftJoin('company as c','c.id','=','wl.company_id');
+					->select('wl.*', 'c.company_name', 'm.realname')
+					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
+					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
 			
-	        if(trim($search)){
+	        if (trim($search)) {
 	        	$total->where(function ($query) use ($search) {
                     $query->where('wl.title', 'LIKE', '%' . $search . '%')
                     ->orwhere('c.company_name', 'LIKE', '%' . $search . '%');
@@ -86,7 +88,6 @@ class RecordController extends Controller {
 	        $data['rows'] = $rows->skip($start)->take($pageSize)
 					        ->orderBy($sortName, $sortOrder)
 					        ->get();
-	        
 	        return response()->json($data);
         }
         return view('admin.record.apply');

@@ -1,10 +1,10 @@
 @extends('admin.layouts.base')
 
-@section('title','企业日志')
+@section('title','使用记录')
 
 @section('pageHeader','')
 
-@section('pageDesc','企业日志')
+@section('pageDesc','使用记录')
 
 @section('css')
 
@@ -41,7 +41,7 @@
         table.bootstrapTable({
             method: "POST",  //使用get请求到服务器获取数据
             contentType:"application/x-www-form-urlencoded; charset=UTF-8", 
-            url: "/admin/worklog/index", //获取数据的Servlet地址
+            url: "/admin/apply/index", //获取数据的Servlet地址
             ajaxOptions:{
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
@@ -93,12 +93,12 @@
                 layer.msg("加载数据失败", {time : 1500, icon : 2});
             },
             columns: [[
-                {field:'id', title: 'ID',sortable: true},
-                {field:'title', title: '日志标题'},
-                {field:'content', title: '日志内容'},
-                {field:'company_name', title: '所属企业'},
-                {field:'created_at', title: '创建时间'},
-                {field:'updated_at', title: '修改时间'}
+                {field:'title', title: '标题'},
+                {field:'created_at', title: '时间'},
+                {field:'company_name', title: '企业名称'},
+                {field:'realname', title: '操作人'},
+                {field:'identity', title: '身份'},
+                {field:'content', title: '内容'}
             ]]
         });
         
