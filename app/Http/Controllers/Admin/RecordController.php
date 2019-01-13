@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Admin\AdminUser;
 use Illuminate\Http\Request;
 use App\Models\Admin\Worklog;
-use App\Models\Admin\Paymentlog;
+use App\Models\Admin\PaymentLog;
 
 use App\Http\Controllers\Controller;
 
@@ -25,11 +25,11 @@ class RecordController extends Controller {
 			$start = ($pageNumber-1)*$pageSize;   // 开始位置
 			$search = $request->post("search",'');  // 搜索条件
 			
-			$total = Paymentlog::from('payment_log as pl')
+			$total = PaymentLog::from('payment_log as pl')
 					->select('pl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'pl.company_id')
 					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
-			$rows = Paymentlog::from('payment_log as pl')
+			$rows = PaymentLog::from('payment_log as pl')
 					->select('pl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'pl.company_id')
 					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
