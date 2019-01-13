@@ -62,7 +62,12 @@ class WechatController   extends Controller
     public function getWXACodeUnlimit (Request $request) {
         $data = $request->post();
         $scene = json_encode($data);
-        $this->result['data'] = $this->getQrcode($this->wechat_appid, $this->wechat_secret, $scene);
+        $res = $this->getQrcode($this->wechat_appid, $this->wechat_secret, $scene);
+        $resData = json_decode($res, true);
+        if (isset($resData['errcode']) && $resData['errcode']) {
+            return $this->verify_parameter($resData['errmsg'], 0);
+        }
+        $this->result['data'] = $res;
         return response()->json($this->result);
     }
 
