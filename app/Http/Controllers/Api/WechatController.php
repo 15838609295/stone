@@ -60,7 +60,9 @@ class WechatController   extends Controller
      * 获取小程序码
      */
     public function getWXACodeUnlimit (Request $request) {
-        $this->result['data'] = $this->getQrcode($this->wechat_appid, $this->wechat_secret);
+        $data = $request->post();
+        $scene = json_encode($data);
+        $this->result['data'] = $this->getQrcode($this->wechat_appid, $this->wechat_secret, $scene);
         return response()->json($this->result);
     }
 
@@ -1267,7 +1269,7 @@ fclose($fp);*/
     /**
      * 获得二维码
      */
-    private function getQrcode($appid, $secret) {
+    private function getQrcode($appid, $secret, $scene) {
         // 格式自选，不同格式貌似加载速度略有不同，想加载更快可选择jpg
         header('content-type:image/jpg');
         $data = array();
