@@ -39,16 +39,13 @@ class PayController{
     private $notify_url = '';
 
 	//初始化各项配置
-    public function __construct(Request $request){
-
-      
+    public function __construct(Request $request) {
         $con = Configs::first();
         $this->wechat_appid = $con->wechat_appid;
         $this->wechat_secret = $con->wechat_secret;
         $this->mch_id = $con->mch_id;
         $this->mch_key = $con->mch_key;
         $this->notify_url = $con->notify_url;
-
     }
   
     /**

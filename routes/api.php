@@ -35,6 +35,7 @@ Route::any('updateSale','Api\ApiController@updateSale');  //销售修改
 Route::any('getSaleList','Api\ApiController@getSaleList');  //销售列表
 
 //微信接口
+Route::any('getWXACodeUnlimit','Api\WechatController@getWXACodeUnlimit');  //获取小程序码
 Route::any('getUserInfo','Api\WechatController@getUserInfo');  //获取用户信息
 Route::any('getUsers','Api\WechatController@getUsers');  //根据openid获取用户信息
 Route::any('logoutCompany','Api\WechatController@logoutCompany');  //注销企业

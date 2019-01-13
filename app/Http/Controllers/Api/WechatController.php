@@ -32,6 +32,9 @@ use DB;
 
 class WechatController   extends Controller
 {
+    /**
+     * 参数定义
+     */
     public $result = array("status"=>0,'msg'=>'请求成功','data'=>"");
     private $wechat_appid = '';
     private $wechat_secret = '';
@@ -39,9 +42,10 @@ class WechatController   extends Controller
     private $mch_key = '';
     private $notify_url = '';
 
-    //初始化各项配置
+    /**
+     * 初始化各项配置
+     */
     public function __construct(Request $request){
-
         $this->middleware('checkApi');
       
         $con = Configs::first();
@@ -52,8 +56,18 @@ class WechatController   extends Controller
         $this->notify_url = $con->notify_url;
     }
 
-    //获取用户信息
-    public function getUserInfo(Request $request){
+    /**
+     * 获取小程序码
+     */
+    public function getWXACodeUnlimit (Request $request) {
+        $this->result['data'] = $this->getQrcode($this->wechat_appid, $this->wechat_secret);
+        return response()->json($this->result);
+    }
+
+    /**
+     * 获取用户信息
+     */
+    public function getUserInfo (Request $request) {
         $data = $request->post();
 
         //判断传值是否正确
@@ -1004,12 +1018,9 @@ fclose($fp);*/
 
         $this->result['data'] = array('status' => $tc->status);
         return response()->json($this->result);
-
     }
 
     //==================================================================================
-
-
     // 产生订单
     private function createOrder($user_id,$company_id,$monthly_id,$moeny,$order_sn,$order_name='充值会员'){
         $data['order_sn'] = $order_sn;
@@ -1228,4 +1239,64 @@ fclose($fp);*/
             return "curl出错，错误码:$error";
         }
     }
+
+    /**
+     * 获取access_token
+     *
+     * @param $appid
+     * @param $secret
+     */
+    private function getAccessToken ($appid, $secret) {
+        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$secret}";
+        return $this->curlGet($url);
+    }
+
+    /**
+     * 开启curl get请求
+     */
+    private function curlGet ($url) {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        return $data;
+    }
+
+    /**
+     * 获得二维码
+     */
+    private function getQrcode($appid, $secret) {
+        // 格式自选，不同格式貌似加载速度略有不同，想加载更快可选择jpg
+        header('content-type:image/jpg');
+        $data = array();
+        $data['page'] = ''; // 路径
+        $data['scene'] = ''; // 场景参数
+        $data = json_encode($data);
+        $access = json_decode($this->getAccessToken($appid, $secret), true);
+        $access_token= $access['access_token'];
+        $url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" . $access_token;
+        return $this->getHttpArray($url, $data);
+    }
+
+    /**
+     * 开启curl post请求
+     *
+     * @param $url
+     * @param $post_data
+     */
+    private function getHttpArray ($url, $post_data) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);   //没有这个会自动输出，不用print_r();也会在后面多个1
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        $output = curl_exec($ch);
+        echo $output;
+        die;
+    }
+
 }
