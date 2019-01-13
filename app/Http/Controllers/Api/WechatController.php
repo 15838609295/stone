@@ -35,7 +35,7 @@ class WechatController   extends Controller
     /**
      * 参数定义
      */
-    public $result = array("status"=>0,'msg'=>'请求成功','data'=>"");
+    public $result = ['status' => 0, 'msg' => '请求成功', 'data' => ''];
     private $wechat_appid = '';
     private $wechat_secret = '';
     private $mch_id = '';
