@@ -28,12 +28,11 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  // 搜索条件
 			
 			$total = PaymentLog::from('payment_log as pl')
-					->select('pl.*', 'c.company_name', 'm.realname', 'cu.user_id')
+					->select('pl.*', 'c.company_name', 'm.realname as opername')
 					->leftJoin('company as c', 'c.id', '=', 'pl.company_id')
-					->leftJoin('company_user as cu', 'cu.company_id', '=', 'c.id')
 					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
 			$rows = PaymentLog::from('payment_log as pl')
-					->select('pl.*', 'c.company_name', 'm.realname')
+					->select('pl.*', 'c.company_name', 'm.realname as opername')
 					->leftJoin('company as c', 'c.id', '=', 'pl.company_id')
 					->leftJoin('members as m', 'm.id', '=', 'pl.user_id');
 			
@@ -52,7 +51,12 @@ class RecordController extends Controller {
 					        ->get();
 			if ($lists) {
 				foreach ($lists as $k => &$v) {
-					$v->opername = Members::where('id', $v->user_id)->value('realname');
+					$cu = CompanyUser::where('company_id', $v->company_id)->first();
+					if (! $cu) {
+						$v->realname = '';
+					} else {
+						$v->realname = Members::where('id', $cu->user_id)->value('realname');
+					}
 				}
 			}
 			$data['rows'] = $lists;
