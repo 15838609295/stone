@@ -21,7 +21,7 @@
             <li><a href="/admin/company/{{$id}}/sales">销售情况</a></li>
             <li class="layui-this">销售趋势</li>
         </ul>
-        <div class="layui-tab-content" style="height: 100px;">
+        <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
                 <div class="panel panel-default panel-intro">
                     <div class="panel-body">
