@@ -246,6 +246,8 @@ class WechatController   extends Controller
      * @param xs_sort - 已销售额（1升，0降）
      */
     public function databaseList(Request $request) {
+
+        // 获取参数
         $data = $request->post();
 
         // 判断传值是否正确
@@ -335,22 +337,21 @@ class WechatController   extends Controller
         } else {
             $godown->orderBy('g.created_at','desc');
         }
-
         if (isset($data['st_sort']) && (1 == $data['st_sort'])) {
             $godown->orderBy('g.godown_number','asc');
         } else {
             $godown->orderBy('g.godown_number','desc');
         }
-
         if (isset($data['xs_sort']) && (1 == $data['xs_sort'])) {
             $godown->orderBy('s.sale_total_price','asc');
         } else {
             $godown->orderBy('s.sale_total_price','desc');
         }
 
-        $res = $godown->orderBy('g.id','desc')->skip($start)->take(10)->get();
-        if(!$res){
-            return $this->verify_parameter('查不到数据',0);
+        // 获取数据库列表
+        $res = $godown->skip($start)->take(10)->get();
+        if (! $res) {
+            return $this->verify_parameter('查不到数据', 0);
         }
 
         // 备注：销售单(sale_remarks)和调度单(dispatch_remarks)存在多个，入库单(godown_remarks)和开切单(opencut_remarks)一个
