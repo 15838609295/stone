@@ -1344,7 +1344,8 @@ fclose($fp);*/
         if ($sales) {
             foreach ($sales as $k => $v) {
                 if (! empty($v->remarks)) {
-                    $sale_remarks[] = '【 '.$v->sale_number.' 】 '.$v->remarks;
+                    $unit = ($v->curtype == 0) ? 'm³' : '㎡';
+                    $sale_remarks[] = '【 '.$v->sale_number.$unit.' 】 '.$v->remarks;
                 }
             }
         }
