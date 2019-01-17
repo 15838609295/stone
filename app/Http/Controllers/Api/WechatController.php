@@ -1343,7 +1343,9 @@ fclose($fp);*/
         $sales = Sale::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
         if ($sales) {
             foreach ($sales as $k => $v) {
-                $sale_remarks[] = $v->remarks;
+                if (! empty($v->remarks)) {
+                    $sale_remarks[] = '【 '.$v->sale_number.' 】 '.$v->remarks;
+                }
             }
         }
         return $sale_remarks;
