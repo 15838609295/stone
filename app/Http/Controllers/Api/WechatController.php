@@ -365,15 +365,16 @@ class WechatController   extends Controller
             // 已销售额
             $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
 
+            $sale_total_price[] = $v->sale_total_price;
             $resData[] = $v->toArray();
         }
 
         // 排序：xs_sort-已销售额
         if (isset($data['xs_sort']) && !empty($data['xs_sort'])) {
             if (1 == $data['xs_sort']) {
-                $resData = array_multisort($resData, SORT_ASC);
+                $resData = array_multisort($sale_total_price, SORT_ASC, $resData);
             } else {
-                $resData = array_multisort($resData, SORT_DESC);
+                $resData = array_multisort($sale_total_price, SORT_DESC, $resData);
             }
         }
 
