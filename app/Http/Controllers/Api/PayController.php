@@ -119,6 +119,11 @@ class PayController{
     public function notify(Request $request) {
         $xml = file_get_contents("php://input");
         $data = $this->xmlToArray($xml);
+
+        $fp = fopen('./wechat_pay_log.txt', 'a+b');
+        fwrite($fp, "\r\n".print_r($data,true));
+        fclose($fp);
+
         if ($data['result_code']=='SUCCESS') {
             if ($data['return_code']=='SUCCESS') {
                 // 验证订单状态，判断是否已支付
