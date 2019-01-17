@@ -305,28 +305,25 @@ class WechatController   extends Controller
         }
 
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price','g.remarks as godown_remarks')
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','g.remarks as godown_remarks')
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
-            ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
-            ->where('d.company_id','=',$data['company_id']);
+            ->where('d.company_id', $data['company_id']);
 
-        if(isset($data['goods_attr_id']) && trim($data['goods_attr_id']) != ''){
-            $godown->where('g.goods_attr_id','=',$data['goods_attr_id']);
+        if (isset($data['goods_attr_id']) && trim($data['goods_attr_id']) != '') {
+            $godown->where('g.goods_attr_id', $data['goods_attr_id']);
+        }
+        if (isset($data['type']) && trim($data['type']) != '') {
+            $godown->where('g.type', $data['type']);
+        }
+        if (isset($data['depot_id']) && trim($data['depot_id']) != '') {
+            $godown->where('g.depot_id', $data['depot_id']);
         }
 
-        if(isset($data['type']) && trim($data['type']) != ''){
-            $godown->where('g.type','=',$data['type']);
-        }
-
-        if(isset($data['depot_id']) && trim($data['depot_id']) != ''){
-            $godown->where('g.depot_id','=',$data['depot_id']);
-        }
-
-        if(isset($data['soso']) && trim($data['soso']) != ''){
-            $godown->where(function ($query) use ($data, $godownIds){
+        if (isset($data['soso']) && trim($data['soso']) != '') {
+            $godown->where(function ($query) use ($data, $godownIds) {
                 $query->whereIn('g.id', $godownIds)
-                    ->orwhere('g.godown_no','like','%'.$data['soso'].'%');
+                      ->orwhere('g.godown_no', 'like', '%'.$data['soso'].'%');
             });
         }
 		$total = $godown->count();
@@ -347,31 +344,34 @@ class WechatController   extends Controller
                 $godown->orderBy('g.godown_number','desc');
             }
         }
-        // 排序：xs_sort-已销售额
-        if (isset($data['xs_sort']) && !empty($data['xs_sort'])) {
-            if (1 == $data['xs_sort']) {
-                $godown->orderBy('s.sale_total_price','asc');
-            } else {
-                $godown->orderBy('s.sale_total_price','desc');
-            }
-        }
-
+        
         // 获取数据库列表
         $res = $godown->skip($start)->take(10)->get();
         if (! $res) {
             return $this->verify_parameter('查不到数据', 0);
         }
 
-        // 备注：销售单(sale_remarks)和调度单(dispatch_remarks)存在多个，入库单(godown_remarks)和开切单(opencut_remarks)一个
         foreach ($res as $k => &$v) {
-            // 开切单备注
+            // 开切单备注：一个
             $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
 
-            // 销售单备注
+            // 销售单备注：多个
             $v->sale_remarks = $this->getSaleRemarks($v->id);
 
-            // 调度单备注
+            // 调度单备注：多个
             $v->dispatch_remarks = $this->getDispatchRemarks($v->id);
+
+            // 已销售额
+            $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
+        }
+
+        // 排序：xs_sort-已销售额
+        if (isset($data['xs_sort']) && !empty($data['xs_sort'])) {
+            if (1 == $data['xs_sort']) {
+                $res = array_multisort($res, SORT_ASC);
+            } else {
+                $res = array_multisort($res, SORT_DESC);
+            }
         }
 
 		$this->result['total'] = $total;
