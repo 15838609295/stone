@@ -341,7 +341,7 @@ class WechatController   extends Controller
         }
         // 排序：st_sort-库存数量
         if (isset($data['st_sort']) && trim(isset($data['st_sort'])) != '') {
-            if (isset($data['st_sort']) && (1 == $data['st_sort'])) {
+            if (1 == $data['st_sort']) {
                 $godown->orderBy('g.godown_number','asc');
             } else {
                 $godown->orderBy('g.godown_number','desc');
@@ -350,7 +350,7 @@ class WechatController   extends Controller
 
         // 排序：xs_sort-已销售额
         if (isset($data['xs_sort']) && trim(isset($data['xs_sort'])) != '') {
-            if (isset($data['xs_sort']) && (1 == $data['xs_sort'])) {
+            if (1 == $data['xs_sort']) {
                 $godown->orderBy('s.sale_total_price','asc');
             } else {
                 $godown->orderBy('s.sale_total_price','desc');
