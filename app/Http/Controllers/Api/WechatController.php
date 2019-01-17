@@ -351,6 +351,9 @@ class WechatController   extends Controller
                 $godown->orderBy('s.sale_total_price','asc');
             } else {
                 $godown->orderBy('s.sale_total_price','desc');
+                $this->result['total'] = $total;
+                $this->result['data'] = [];
+                return response()->json($this->result);
             }
         }
 
