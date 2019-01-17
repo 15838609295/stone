@@ -249,18 +249,20 @@ class WechatController   extends Controller
         $data = $request->post();
 
         // 判断传值是否正确
-        if(!isset($data['company_id']) || trim($data['company_id']) == ''){
-            return $this->verify_parameter('company_id'); //返回必传参数为空
+        if (!isset($data['company_id']) || trim($data['company_id']) == '') {
+            return $this->verify_parameter('company_id');
         }
 
         // 判断是否有可选参数
-        if(!isset($data['page']) || trim($data['page']) == ''){
+        if (!isset($data['page']) || trim($data['page']) == '') {
             $data['page'] = 1;
         }
-        $start = ((int)$data['page']-1)*10;  //截取部分数据
+
+        // 截取部分数据
+        $start = ((int)$data['page']-1)*10;
 
         $godownIds = array();
-        if(isset($data['soso']) &&  trim($data['soso']) != ''){
+        if (isset($data['soso']) &&  trim($data['soso']) != '') {
             $arr1 = Dispatch::where('remarks', 'like', '%'.$data['soso'].'%')->get(['godown_id']);
             $arr2 = JoinDepot::from('joindepot as j')
                 ->select('g.id as godown_id')
@@ -301,7 +303,7 @@ class WechatController   extends Controller
         }
 
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price','g.remarks as godown_remarks','s.remarks as sale_remarks')
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','s.sale_total_price','g.remarks as godown_remarks')
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
             ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
@@ -351,11 +353,16 @@ class WechatController   extends Controller
             return $this->verify_parameter('查不到数据',0);
         }
 
-        // 备注
+        // 备注：销售单(sale_remarks)和调度单(dispatch_remarks)存在多个，入库单(godown_remarks)和开切单(opencut_remarks)一个
         foreach ($res as $k => &$v) {
-            // 调度单备注，开切单备注
-            $v->dispatch_remarks = Dispatch::where('godown_id', $v->id)->value('remarks');
+            // 开切单备注
             $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
+
+            // 销售单备注
+            $v->sale_remarks = $this->getSaleRemarks($v->id);
+
+            // 调度单备注
+            $v->dispatch_remarks = $this->getDispatchRemarks($v->id);
         }
 
 		$this->result['total'] = $total;
@@ -1302,6 +1309,38 @@ fclose($fp);*/
         $output = curl_exec($ch);
         curl_close($ch);
         return $output;
+    }
+
+    /**
+     * 获取销售单备注
+     *
+     * @param $godown_id
+     */
+    private getSaleRemarks($godown_id) {
+        $sale_remarks = [];
+        $sales = Sale::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
+        if ($sales) {
+            foreach ($sales as $k => $v) {
+                $sale_remarks[] = $v->remarks;
+            }
+        }
+        return $sale_remarks;
+    }
+
+    /**
+     * 获取调度单备注
+     *
+     * @param $godown_id
+     */
+    private getDispatchRemarks($godown_id) {
+        $dispatch_remarks = [];
+        $dispatchs = Dispatch::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
+        if ($dispatchs) {
+            foreach ($dispatchs as $k => $v) {
+                $dispatch_remarks[] = $v->remarks;
+            }
+        }
+        return $dispatch_remarks;
     }
 
 }
