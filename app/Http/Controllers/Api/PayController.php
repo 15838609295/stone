@@ -168,7 +168,11 @@ class PayController{
                 $cu = CompanyUser::where('user_id', $order->user_id)->where('company_id', $order->company_id)->first();
                 // 充值金额 = 实际支付金额
                 $money = $order->money;
-                $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $money, $monthly->month);
+                $bool = $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $money, $monthly->month);
+                if (! $bool) {
+                    Log::error('错误信息：添加充值记录失败！');
+                    echo 'failed';die;
+                }
                 Log::info('充值成功，订单号='.$order->order_sn);
             }
             Log::info('充值成功，订单已支付，订单号='.$order->order_sn);
