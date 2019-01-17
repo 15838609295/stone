@@ -1316,7 +1316,7 @@ fclose($fp);*/
      *
      * @param $godown_id
      */
-    private function getSaleRemarks($godown_id) {
+    private function getSaleRemarks ($godown_id) {
         $sale_remarks = [];
         $sales = Sale::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
         if ($sales) {
@@ -1332,7 +1332,7 @@ fclose($fp);*/
      *
      * @param $godown_id
      */
-    private function getDispatchRemarks($godown_id) {
+    private function getDispatchRemarks ($godown_id) {
         $dispatch_remarks = [];
         $dispatchs = Dispatch::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
         if ($dispatchs) {
