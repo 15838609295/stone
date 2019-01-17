@@ -331,21 +331,30 @@ class WechatController   extends Controller
         }
 		$total = $godown->count();
 
-        // 排序: rk_sort-入库时间，st_sort-库存数量，xs_sort-已销售额
-        if (isset($data['rk_sort']) && (1 == $data['rk_sort'])) {
-            $godown->orderBy('g.created_at','asc');
-        } else {
-            $godown->orderBy('g.created_at','desc');
+        // 排序: rk_sort-入库时间
+        if (isset($data['rk_sort']) && trim(isset($data['rk_sort'])) != '') {
+            if (1 == $data['rk_sort']) {
+                $godown->orderBy('g.created_at','asc');
+            } else {
+                $godown->orderBy('g.created_at','desc');
+            }
         }
-        if (isset($data['st_sort']) && (1 == $data['st_sort'])) {
-            $godown->orderBy('g.godown_number','asc');
-        } else {
-            $godown->orderBy('g.godown_number','desc');
+        // 排序：st_sort-库存数量
+        if (isset($data['st_sort']) && trim(isset($data['st_sort'])) != '') {
+            if (isset($data['st_sort']) && (1 == $data['st_sort'])) {
+                $godown->orderBy('g.godown_number','asc');
+            } else {
+                $godown->orderBy('g.godown_number','desc');
+            }
         }
-        if (isset($data['xs_sort']) && (1 == $data['xs_sort'])) {
-            $godown->orderBy('s.sale_total_price','asc');
-        } else {
-            $godown->orderBy('s.sale_total_price','desc');
+
+        // 排序：xs_sort-已销售额
+        if (isset($data['xs_sort']) && trim(isset($data['xs_sort'])) != '') {
+            if (isset($data['xs_sort']) && (1 == $data['xs_sort'])) {
+                $godown->orderBy('s.sale_total_price','asc');
+            } else {
+                $godown->orderBy('s.sale_total_price','desc');
+            }
         }
 
         // 获取数据库列表
