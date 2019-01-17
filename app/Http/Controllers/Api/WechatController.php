@@ -1318,12 +1318,12 @@ fclose($fp);*/
      */
     private getSaleRemarks($godown_id) {
         $sale_remarks = [];
-        $sales = Sale::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
-        if ($sales) {
-            foreach ($sales as $k => $v) {
-                $sale_remarks[] = $v->remarks;
-            }
-        }
+        // $sales = Sale::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
+        // if ($sales) {
+        //     foreach ($sales as $k => $v) {
+        //         $sale_remarks[] = $v->remarks;
+        //     }
+        // }
         return $sale_remarks;
     }
 
@@ -1334,12 +1334,12 @@ fclose($fp);*/
      */
     private getDispatchRemarks($godown_id) {
         $dispatch_remarks = [];
-        $dispatchs = Dispatch::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
-        if ($dispatchs) {
-            foreach ($dispatchs as $k => $v) {
-                $dispatch_remarks[] = $v->remarks;
-            }
-        }
+        // $dispatchs = Dispatch::where('godown_id', $godown_id)->orderBy('created_at', 'desc')->get();
+        // if ($dispatchs) {
+        //     foreach ($dispatchs as $k => $v) {
+        //         $dispatch_remarks[] = $v->remarks;
+        //     }
+        // }
         return $dispatch_remarks;
     }
 
