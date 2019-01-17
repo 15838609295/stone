@@ -305,9 +305,8 @@ class WechatController   extends Controller
         }
 
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','g.remarks as godown_remarks', DB::raw("SUM(s.sale_total_price) as sale_total_price"))
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','g.remarks as godown_remarks')
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
-            ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
             ->where('d.company_id', $data['company_id']);
 
@@ -345,6 +344,7 @@ class WechatController   extends Controller
                 $godown->orderBy('g.godown_number','desc');
             }
         }
+
         // 排序：xs_sort-已销售额
         // if (isset($data['xs_sort']) && trim($data['xs_sort']) != '') {
         //     if (1 == $data['xs_sort']) {
@@ -360,20 +360,32 @@ class WechatController   extends Controller
             return $this->verify_parameter('查不到数据', 0);
         }
 
-        // 备注：销售单(sale_remarks)和调度单(dispatch_remarks)存在多个，入库单(godown_remarks)和开切单(opencut_remarks)一个
         foreach ($res as $k => &$v) {
-            // 开切单备注
+            // 开切单备注：一个
             $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
 
-            // 销售单备注
+            // 销售单备注：多个
             $v->sale_remarks = $this->getSaleRemarks($v->id);
 
-            // 调度单备注
+            // 调度单备注：多个
             $v->dispatch_remarks = $this->getDispatchRemarks($v->id);
+
+            // 已销售额
+            $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
+        }
+        $resData = $res->toArray();
+
+        // 排序：xs_sort-已销售额
+        if (isset($data['xs_sort']) && trim($data['xs_sort']) != '') {
+            if (1 == $data['xs_sort']) {
+                $resData = collect($resData)->sortBy('sale_total_price');
+            } else {
+                $resData = collect($resData)->sortByDesc('sale_total_price');
+            }
         }
 
 		$this->result['total'] = $total;
-        $this->result['data'] = $res;
+        $this->result['data'] = $resData;
         return response()->json($this->result);
     }
 
