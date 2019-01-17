@@ -28,6 +28,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\Members;
 use Carbon\Carbon;
 use DB;
+use Log;
 
 class PayController{
   
@@ -117,39 +118,57 @@ class PayController{
      * 微信支付异步通知
      */
     public function notify(Request $request) {
+
+        // 获取异步通知返回数据，xml格式
         $xml = file_get_contents("php://input");
         $data = $this->xmlToArray($xml);
+        Log::info('异步通知返回结果：', $data);
 
-        $fp = fopen('./wechat_pay_log.txt', 'a+b');
-        fwrite($fp, "\r\n".print_r($data,true));
-        fclose($fp);
-
-        if ($data['result_code']=='SUCCESS') {
-            if ($data['return_code']=='SUCCESS') {
-                // 验证订单状态，判断是否已支付
-                $order = Order::where('order_sn','=',$data['out_trade_no'])->first();
-              	if ($order->pay_status == 1) {
-                	echo 'success'; die;
-                }
-                
+        /**
+            Array
+            (
+                [appid] => wx0fa2777491d1f633
+                [bank_type] => CFT
+                [cash_fee] => 1
+                [fee_type] => CNY
+                [is_subscribe] => N
+                [mch_id] => 1488940522
+                [nonce_str] => dbim4jpc5qh7nx3g8e2f1wtav6sru0
+                [openid] => oaF0u5Smha0G7hUfTpzHnspZjXtE
+                [out_trade_no] => 1901170957226181
+                [result_code] => SUCCESS
+                [return_code] => SUCCESS
+                [sign] => 632FB6993B08507F5883D0BB749D4381
+                [time_end] => 20190117095734
+                [total_fee] => 1
+                [trade_type] => JSAPI
+                [transaction_id] => 4200000254201901171933538565
+            )
+         */
+        if ('SUCCESS' == $data['result_code'] && 'SUCCESS' == $data['return_code']) {
+            // 验证订单状态，判断是否已支付
+            $order = Order::where('order_sn', $data['out_trade_no'])->first();
+            if ($order->pay_status == 0) {
                 // 更新订单状态和支付时间
                 $data_upd['pay_status'] = 1;
                 $data_upd['pay_time'] = $data['time_end'];
-                $bool = Order::where('order_sn', '=', $data['out_trade_no'])->update($data_upd);
+                $bool = Order::where('order_sn', $data['out_trade_no'])->update($data_upd);
                 if (! $bool) {
+                    Log::error('错误信息：更新订单（'.$data['out_trade_no'].'）信息失败！');
                     echo 'failed'; die;
                 }
 
                 // 更新企业有效时间
-                $monthly = Monthly::where('id', '=', $order->monthly_id)->first();
-                $company = Company::where('id', '=', $order->company_id)->first();
+                $monthly = Monthly::where('id', $order->monthly_id)->first();
+                $company = Company::where('id', $order->company_id)->first();
                 if (!empty($company->volid_time) && $company->volid_time > Carbon::now()->toDateTimeString()) {
-                    $upd['volid_time'] = Carbon::parse($company->volid_time)->modify('+'.$monthly->month.' days')->toDateTimeString();
+                    $volid_time = Carbon::parse($company->volid_time)->modify('+'.$monthly->month.' days')->toDateTimeString();
                 } else {
-                    $upd['volid_time'] = Carbon::parse('+'.$monthly->month.' days')->toDateTimeString();
+                    $volid_time = Carbon::parse('+'.$monthly->month.' days')->toDateTimeString();
                 }
-                $bool = Company::where('id', '=', $order->company_id)->update($upd);
+                $bool = Company::where('id', $order->company_id)->update(['volid_time' => $volid_time]);
                 if (! $bool) {
+                    Log::error('错误信息：更新企业有效时间失败！');
                     echo 'failed';die;
                 }
 
@@ -157,6 +176,7 @@ class PayController{
                 $cu = CompanyUser::where('user_id', '=', $order->user_id)->where('company_id', '=', $order->company_id)->first();
                 $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $monthly->money, $monthly->month);
             }
+            echo 'success'; die;
         }
         echo 'failed'; die;
     }
