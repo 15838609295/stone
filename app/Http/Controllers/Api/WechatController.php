@@ -351,6 +351,7 @@ class WechatController   extends Controller
             return $this->verify_parameter('查不到数据', 0);
         }
 
+        $resData = [];
         foreach ($res as $k => &$v) {
             // 开切单备注：一个
             $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
@@ -363,19 +364,21 @@ class WechatController   extends Controller
 
             // 已销售额
             $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
+
+            $resData[] = $v->toArray();
         }
 
         // 排序：xs_sort-已销售额
         if (isset($data['xs_sort']) && !empty($data['xs_sort'])) {
             if (1 == $data['xs_sort']) {
-                $res = array_multisort($res, SORT_ASC);
+                $resData = array_multisort($resData, SORT_ASC);
             } else {
-                $res = array_multisort($res, SORT_DESC);
+                $resData = array_multisort($resData, SORT_DESC);
             }
         }
 
 		$this->result['total'] = $total;
-        $this->result['data'] = $res;
+        $this->result['data'] = $resData;
         return response()->json($this->result);
     }
 
