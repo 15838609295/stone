@@ -124,27 +124,6 @@ class PayController{
         $data = $this->xmlToArray($xml);
         Log::info('异步通知返回结果：', $data);
 
-        /**
-            Array
-            (
-                [appid] => wx0fa2777491d1f633
-                [bank_type] => CFT
-                [cash_fee] => 1
-                [fee_type] => CNY
-                [is_subscribe] => N
-                [mch_id] => 1488940522
-                [nonce_str] => dbim4jpc5qh7nx3g8e2f1wtav6sru0
-                [openid] => oaF0u5Smha0G7hUfTpzHnspZjXtE
-                [out_trade_no] => 1901170957226181
-                [result_code] => SUCCESS
-                [return_code] => SUCCESS
-                [sign] => 632FB6993B08507F5883D0BB749D4381
-                [time_end] => 20190117095734
-                [total_fee] => 1
-                [trade_type] => JSAPI
-                [transaction_id] => 4200000254201901171933538565
-            )
-         */
         if ('SUCCESS' == $data['result_code'] && 'SUCCESS' == $data['return_code']) {
             // 验证订单状态，判断是否已支付
             $order = Order::where('order_sn', $data['out_trade_no'])->first();
@@ -173,8 +152,10 @@ class PayController{
                 }
 
                 // 添加充值记录
-                $cu = CompanyUser::where('user_id', '=', $order->user_id)->where('company_id', '=', $order->company_id)->first();
-                $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $monthly->money, $monthly->month);
+                $cu = CompanyUser::where('user_id', $order->user_id)->where('company_id', '=', $order->company_id)->first();
+                // 充值金额 = 实际支付金额
+                $money = $order->money;
+                $this->paymentLog($order->order_sn, '微信支付', $order->user_id, CompanyUser::IS_ADMIN[$cu->is_admin], $order->company_id, $order->monthly_id, $money, $monthly->month);
             }
             echo 'success'; die;
         }
