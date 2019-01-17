@@ -371,7 +371,8 @@ class WechatController   extends Controller
             $v->dispatch_remarks = $this->getDispatchRemarks($v->id);
 
             // 已销售额
-            $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
+            $sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
+            $v->sale_total_price = round($sale_total_price, 2);
         }
         $resData = $res->toArray();
 
