@@ -379,14 +379,15 @@ class WechatController   extends Controller
         // 排序：xs_sort-已销售额
         if (isset($data['xs_sort']) && trim($data['xs_sort']) != '') {
             if (1 == $data['xs_sort']) {
-                $resData = collect($resData)->sortBy('sale_total_price');
+                $this->result['data'] = collect($resData)->sortBy('sale_total_price');
             } else {
-                $resData = collect($resData)->sortByDesc('sale_total_price');
+                $this->result['data'] = collect($resData)->sortByDesc('sale_total_price');
             }
+        } else {
+            $this->result['data'] = $resData;
         }
 
 		$this->result['total'] = $total;
-        $this->result['data'] = $resData;
         return response()->json($this->result);
     }
 
