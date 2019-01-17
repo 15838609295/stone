@@ -525,7 +525,7 @@ class ApiController  extends Controller{
 
         // 记录操作日志(删除图片)
         if (isset($data['del_godown_pic']) && count($data['del_godown_pic']) > 0) {
-            $cu = CompanyUser::where('user_id','=',$data['member_id'])->where('company_id','=',$godown['company_id'])->value('is_admin');
+            $cu = CompanyUser::where('user_id', $data['member_id'])->where('company_id', $godown['company_id'])->first();
             for ($i=0; $i < count($data['del_godown_pic']); $i++) {
                 $this->adminLog($godown['company_id'], 2, '删除图片', $data['member_id'], CompanyUser::IS_ADMIN[$cu->is_admin]);
             }
