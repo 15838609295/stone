@@ -305,8 +305,9 @@ class WechatController   extends Controller
         }
 
         $godown= Godown::from('godown as g')
-            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','g.remarks as godown_remarks')
+            ->select('g.id','g.type','ga.goods_attr_name','d.depot_name','g.godown_no','g.godown_weight','g.godown_length','g.godown_width','g.godown_height','g.godown_pic','g.godown_number','g.no_start','g.no_end','g.created_at as addtime','g.remarks as godown_remarks', DB::raw("SUM(s.sale_total_price) as sale_total_price"))
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
+            ->leftJoin('sale as s','g.id','=','s.godown_id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
             ->where('d.company_id', $data['company_id']);
 
@@ -329,7 +330,7 @@ class WechatController   extends Controller
 		$total = $godown->count();
 
         // 排序: rk_sort-入库时间
-        if (isset($data['rk_sort']) && !empty($data['rk_sort'])) {
+        if (isset($data['rk_sort']) && trim($data['rk_sort']) != '') {
             if (1 == $data['rk_sort']) {
                 $godown->orderBy('g.created_at','asc');
             } else {
@@ -337,49 +338,42 @@ class WechatController   extends Controller
             }
         }
         // 排序：st_sort-库存数量
-        if (isset($data['st_sort']) && !empty($data['st_sort'])) {
+        if (isset($data['st_sort']) && trim($data['st_sort']) != '') {
             if (1 == $data['st_sort']) {
                 $godown->orderBy('g.godown_number','asc');
             } else {
                 $godown->orderBy('g.godown_number','desc');
             }
         }
-        
+        // 排序：xs_sort-已销售额
+        if (isset($data['xs_sort']) && trim($data['xs_sort']) != '') {
+            if (1 == $data['xs_sort']) {
+                $godown->orderBy('s.sale_total_price','asc');
+            } else {
+                $godown->orderBy('s.sale_total_price','desc');
+            }
+        }
+
         // 获取数据库列表
         $res = $godown->skip($start)->take(10)->get();
         if (! $res) {
             return $this->verify_parameter('查不到数据', 0);
         }
 
-        $resData = [];
+        // 备注：销售单(sale_remarks)和调度单(dispatch_remarks)存在多个，入库单(godown_remarks)和开切单(opencut_remarks)一个
         foreach ($res as $k => &$v) {
-            // 开切单备注：一个
+            // 开切单备注
             $v->opencut_remarks = Opencut::where('godown_id', $v->id)->value('remarks');
 
-            // 销售单备注：多个
+            // 销售单备注
             $v->sale_remarks = $this->getSaleRemarks($v->id);
 
-            // 调度单备注：多个
+            // 调度单备注
             $v->dispatch_remarks = $this->getDispatchRemarks($v->id);
-
-            // 已销售额
-            $v->sale_total_price = Sale::where('godown_id', $v->id)->sum('sale_total_price');
-
-            $sale_total_price[] = $v->sale_total_price;
-            $resData[] = $v->toArray();
-        }
-
-        // 排序：xs_sort-已销售额
-        if (isset($data['xs_sort']) && !empty($data['xs_sort'])) {
-            if (1 == $data['xs_sort']) {
-                $resData = array_multisort($sale_total_price, SORT_ASC, $resData);
-            } else {
-                $resData = array_multisort($sale_total_price, SORT_DESC, $resData);
-            }
         }
 
 		$this->result['total'] = $total;
-        $this->result['data'] = $resData;
+        $this->result['data'] = $res;
         return response()->json($this->result);
     }
 
