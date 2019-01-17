@@ -10,7 +10,7 @@ class CompanyUser extends Model
 
     const IS_ADMIN = array(
         0 => '员工',
-        1 => '管理员',
-        2 => '企业主'
+        1 => '企业主',
+        2 => '主管'
     );
 }
