@@ -78,11 +78,11 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  //搜索条件
 			
 			$total = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name', 'm.realname', 'c.is_admin')
+					->select('wl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
 					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			$rows = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name', 'm.realname', 'c.is_admin')
+					->select('wl.*', 'c.company_name', 'm.realname')
 					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
 					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			
@@ -103,7 +103,12 @@ class RecordController extends Controller {
 					        ->get();
 			if ($lists) {
 				foreach ($lists as $k => &$v) {
-					$v->identity = CompanyUser::IS_ADMIN[$v->is_admin];
+					$is_admin = CompanyUser::where('company_id', $v->company_id)->where('user_id', $v->user_id)->value('is_admin');
+					if ($is_admin == '') {
+						$v->identity = '';
+					} else {
+						$v->identity = CompanyUser::IS_ADMIN[$is_admin];
+					}
 				}
 			}
 			$data['rows'] = $lists;
