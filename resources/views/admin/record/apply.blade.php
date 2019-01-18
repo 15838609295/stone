@@ -97,7 +97,7 @@
                 {field:'created_at', title:'时间', width:180},
                 {field:'company_name', title:'企业名称'},
                 {field:'realname', title:'操作人'},
-                {field:'identity', title:'职级', width:80},
+                {field:'identity', title:'职级', width:60},
                 {field:'content', title:'内容'}
             ]]
         });
