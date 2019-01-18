@@ -93,12 +93,12 @@
                 layer.msg("加载数据失败", {time : 1500, icon : 2});
             },
             columns: [[
-                {field:'title', title: '标题'},
-                {field:'created_at', title: '时间'},
-                {field:'company_name', title: '企业名称'},
-                {field:'realname', title: '操作人'},
-                {field:'identity', title: '职级'},
-                {field:'content', title: '内容'}
+                {field:'title', title:'标题', width:100},
+                {field:'created_at', title:'时间', width:180},
+                {field:'company_name', title:'企业名称'},
+                {field:'realname', title:'操作人'},
+                {field:'identity', title:'职级'},
+                {field:'content', title:'内容'}
             ]]
         });
         
