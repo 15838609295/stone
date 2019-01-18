@@ -91,7 +91,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($data['company_id'],'产品设置',$data['member_name'].'新增产品类别<text class="orange">'.$data['goods_attr_name'].'</text>');
+        $this->goWorkLog($data['mem_id'],$data['company_id'],'产品设置',$data['member_name'].'新增产品类别<text class="orange">'.$data['goods_attr_name'].'</text>');
 
         return response()->json($this->result);
     }
@@ -146,7 +146,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($company_id,'产品设置',$data['member_name'].'删除产品类别<text class="orange">'.$goods_attr_name.'</text>');
+        $this->goWorkLog($data['mem_id'],$company_id,'产品设置',$data['member_name'].'删除产品类别<text class="orange">'.$goods_attr_name.'</text>');
 
         return response()->json($this->result);
     }
@@ -175,7 +175,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($goodsattr->company_id,'品种修改',$data['member_name'].'修改产品类别<text class="orange">'.$goodsattr->goods_attr_name.'为'.$data['goods_attr_name'].'</text>');
+        $this->goWorkLog($data['mem_id'],$goodsattr->company_id,'品种修改',$data['member_name'].'修改产品类别<text class="orange">'.$goodsattr->goods_attr_name.'为'.$data['goods_attr_name'].'</text>');
 
         return response()->json($this->result);
     }
@@ -207,7 +207,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($data['company_id'],'仓库设置',$data['member_name'].'新增仓库<text class="orange">'.$data['depot_name'].'</text>');
+        $this->goWorkLog($data['mem_id'],$data['company_id'],'仓库设置',$data['member_name'].'新增仓库<text class="orange">'.$data['depot_name'].'</text>');
 
         return response()->json($this->result);
     }
@@ -236,7 +236,7 @@ class ApiController  extends Controller{
         if($tag->delete()){
 
             //记录操作日志
-            $this->goWorkLog($company_id,'仓库设置',$data['member_name'].'删除仓库<text class="orange">'.$depot_name.'</text>');
+            $this->goWorkLog($data['mem_id'],$company_id,'仓库设置',$data['member_name'].'删除仓库<text class="orange">'.$depot_name.'</text>');
 
             return response()->json($this->result);
         }else{
@@ -267,7 +267,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($depots->company_id,'仓库设置',$data['member_name'].'修改<text class="orange">'.$depots->depot_name.'</text>为<text class="orange">'.$data['depot_name'].'</text>');
+        $this->goWorkLog($data['mem_id'],$depots->company_id,'仓库设置',$data['member_name'].'修改<text class="orange">'.$depots->depot_name.'</text>为<text class="orange">'.$data['depot_name'].'</text>');
 
         return response()->json($this->result);
 
@@ -355,7 +355,7 @@ class ApiController  extends Controller{
 
         //记录操作日志
         if($data['status']==1){
-            $this->goWorkLog($members->company_id,'员工管理','管理员新增员工<text class="orange">'.$members->realname.'</text>');
+            $this->goWorkLog($data['mem_id'],$members->company_id,'员工管理','管理员新增员工<text class="orange">'.$members->realname.'</text>');
             $this->adminLog($members->company_id,1,'新增员工'.$members->realname,$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
         }
 
@@ -410,7 +410,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($members->company_id,'员工管理','员工<text class="orange">'.$members->realname.'</text>退出企业');
+        $this->goWorkLog($data['mem_id'],$members->company_id,'员工管理','员工<text class="orange">'.$members->realname.'</text>退出企业');
         $this->adminLog($members->company_id,1,'删除员工'.$members->realname,$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -448,10 +448,10 @@ class ApiController  extends Controller{
             ->first();
 
         if($data['is_admin'] == 2){
-            $this->goWorkLog($members->company_id,'员工管理','<text class="orange">'.$members->realname.'</text>被管理员任命为主管');
+            $this->goWorkLog($data['mem_id'],$members->company_id,'员工管理','<text class="orange">'.$members->realname.'</text>被管理员任命为主管');
         }
         if($data['is_admin'] == 0){
-            $this->goWorkLog($members->company_id,'员工管理','<text class="orange">'.$members->realname.'</text>被管理员任命为员工');
+            $this->goWorkLog($data['mem_id'],$members->company_id,'员工管理','<text class="orange">'.$members->realname.'</text>被管理员任命为员工');
         }
 
         return response()->json($this->result);
@@ -533,7 +533,7 @@ class ApiController  extends Controller{
 
         // 记录工作日志
         $content = $data['member_name'].'修改了产品编号为<text class="orange">'.$godown->godown_no.'</text>的产品图片';
-        $this->goWorkLog($godown->company_id,'产品修改',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'产品修改',$content,$godown->id);
         return response()->json($this->result);
     }
 
@@ -666,7 +666,7 @@ class ApiController  extends Controller{
         $beizhu = (isset($data['remarks']) && $data['remarks'] != '') ? $data['remarks'] : '空';
 
         $content = '<text class="orange">' . $godown->goods_attr_name . '</text>' . $type . '，编号' . $godown->godown_no . '，数量<text class="orange">' . $weight . '</text>，存放位置为<text class="orange">' . $godown->depot_name . '</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id, '产品入库', $content, $godown_id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id, '产品入库', $content, $godown_id);
         $this->adminLog($godown->company_id,1,'录入入库单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -721,7 +721,7 @@ class ApiController  extends Controller{
 
         //记录操作日志
         $content = $data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的'.$type.'入库单';
-        $this->goWorkLog($depots->company_id,'入库删除',$content);
+        $this->goWorkLog($data['mem_id'],$depots->company_id,'入库删除',$content);
         $this->adminLog($depots->company_id,1,'删除入库单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -846,7 +846,7 @@ class ApiController  extends Controller{
         $beizhu = (isset($data['remarks']) && $data['remarks'] != '') ? $data['remarks'] : '空';
 
         $content = $data['member_name'].'修改了产品编号为'.$godown->godown_no.'的入库单,<text class="orange">'.$godown->goods_attr_name.'</text>,数量<text class="orange">'.$weight.'</text>，存放于<text class="orange">'.$godown->depot_name.'</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'入库修改',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'入库修改',$content,$godown->id);
         $this->adminLog($godown->company_id,1,'编辑入库单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1041,7 +1041,7 @@ class ApiController  extends Controller{
         $content = '<text class="orange">'.$godown->goods_attr_name.'</text>荒料，编号'.$godown->godown_no;
         $content .= '，数量<text class="orange">'.$data_ins['old_weight'].'m³</text>，产出成品<text class="orange">';
         $content .=	$data['new_weight'].'m²</text>，存放位置为<text class="orange">'.$godown->depot_name.'</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'荒料开切',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'荒料开切',$content,$godown->id);
         $this->adminLog($godown->company_id,1,'录入开切单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1104,7 +1104,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($depots->company_id,'开切删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的荒料开切单');
+        $this->goWorkLog($data['mem_id'],$depots->company_id,'开切删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的荒料开切单');
         $this->adminLog($depots->company_id,1,'删除开切单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1228,7 +1228,7 @@ class ApiController  extends Controller{
 
         $content = $data['member_name'].'修改了编号为'.$godown->godown_no.'开切单，<text class="orange">'.$godown->goods_attr_name.'</text>荒料，编号';
         $content .= $godown->godown_no.'，数量<text class="orange">'.$old_weight.'m³</text>，产出成品<text class="orange">'.$data['new_weight'].'m²</text>，存放位置为<text class="orange">'.$godown->depot_name.'</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'开切修改',$content,$godown_id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'开切修改',$content,$godown_id);
         $this->adminLog($godown->company_id,1,'编辑开切单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1373,7 +1373,7 @@ class ApiController  extends Controller{
         $beizhu = (isset($data['remarks']) && $data['remarks'] != '') ? $data['remarks'] : '空';
 
         $content = '<text class="orange">'.$godown->goods_attr_name.'</text>'.$type.'，编号'.$godown->godown_no.'，数量<text class="orange">'.$weight.'</text>,存放位置由'.$dispatch->old_depot.'变更为<text class="orange">'.$dispatch->new_depot.'</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'产品移库',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'产品移库',$content,$godown->id);
         $this->adminLog($godown->company_id,1,'录入调度单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1420,7 +1420,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($depots->company_id,'调度删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的调度单',$godown->id);
+        $this->goWorkLog($data['mem_id'],$depots->company_id,'调度删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的调度单',$godown->id);
         $this->adminLog($depots->company_id,1,'删除调度单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1502,7 +1502,7 @@ class ApiController  extends Controller{
         $beizhu = (isset($data['remarks']) && $data['remarks'] != '') ? $data['remarks'] : '空';
 
         $content = $data['member_name'].'修改了产品编号为'.$godown->godown_no.'的调度单，<text class="orange">'.$godown->goods_attr_name.'</text>'.$type.'，编号'.$godown->godown_no.'，数量<text class="orange">'.$weight.'</text>,存放位置由'.$dispatch->old_depot.'变更为<text class="orange">'.$dispatch->new_depot.'</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'移库修改',$content,$godown_id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'移库修改',$content,$godown_id);
         $this->adminLog($godown->company_id,1,'编辑调度单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1730,7 +1730,7 @@ class ApiController  extends Controller{
 
         $content = '<text class="orange">'.$godown->goods_attr_name.'</text>'.$type.'，编号'.$godown->godown_no.'，库存<text class="orange">'.$weight.'</text>，售出'.$sale_weight; //.'（板材编号'.$data['sale_no_start'].'-'.$data['sale_no_end'].'）'
         $content .= ',单价<text class="orange">'.$data['sale_price'].'元/'.$unit.'</text>，合计<text class="orange">'.$data['sale_total_price'].'元</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'产品销售',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'产品销售',$content,$godown->id);
         $this->adminLog($godown->company_id,1,'录入销售单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1795,7 +1795,7 @@ class ApiController  extends Controller{
         }
 
         //记录操作日志
-        $this->goWorkLog($depots->company_id,'销售删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的大板销售单',$godown->id);
+        $this->goWorkLog($data['mem_id'],$depots->company_id,'销售删除',$data['member_name'].'删除了产品编号为<text class="orange">'.$godown_no.'</text>的大板销售单',$godown->id);
         $this->adminLog($depots->company_id,1,'删除销售单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -1987,7 +1987,7 @@ class ApiController  extends Controller{
 
         $content = $data['member_name'].'修改了产品编号为'.$godown->godown_no.'的销售单，<text class="orange">'.$godown->goods_attr_name.$type.'</text>，编号'.$godown->godown_no.'，库存<text class="orange">'.$weight.'</text>，售出'.$data['sale_weight']; //'（板材编号'.$data['sale_no_start'].'-'.$data['sale_no_end'].'）'
         $content .= ',单价<text class="orange">'.$data['sale_price'].'元/m²</text>，合计<text class="orange">'.$data['sale_total_price'].'元</text>，备注：'.$beizhu;
-        $this->goWorkLog($godown->company_id,'销售修改',$content,$godown->id);
+        $this->goWorkLog($data['mem_id'],$godown->company_id,'销售修改',$content,$godown->id);
         $this->adminLog($godown->company_id,1,'编辑销售单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
@@ -2074,10 +2074,11 @@ class ApiController  extends Controller{
     }
 
     //记录操作日志的函数
-    private function goWorkLog($company_id,$title,$content,$godown_id=0){
+    private function goWorkLog($user_id,$company_id,$title,$content,$godown_id=0){
         $log = array();
         $log['title'] = $title;
         $log['godown_id'] = $godown_id;
+        $log['user_id'] = $user_id;
         $log['company_id'] = $company_id;
         $log['content'] = $content;
         $log['created_at'] = Carbon::now()->toDateTimeString();

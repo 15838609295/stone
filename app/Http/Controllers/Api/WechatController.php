@@ -943,7 +943,7 @@ fclose($fp);*/
      
       	// 记录日志
       	$member = Members::find($data['member_id']);
-        $this->goWorkLog($data['company_id'], '企业转让', '管理员<text class="orange">'.$cu->realname.'</text>向<text class="orange">'.$member->realname.'</text>出让企业管理权');
+        $this->goWorkLog($data['mem_id'],$data['company_id'], '企业转让', '管理员<text class="orange">'.$cu->realname.'</text>向<text class="orange">'.$member->realname.'</text>出让企业管理权');
       
         return response()->json($this->result);
     }
@@ -981,9 +981,9 @@ fclose($fp);*/
             if($data['type'] == 1){
                 CompanyUser::where('company_id','=',$data['company_id'])->where('user_id','=',$data['member_id'])->update(['is_admin' => 1]);
                 CompanyUser::where('company_id','=',$data['company_id'])->where('user_id','=',$tc->old_admin)->update(['is_admin' => 0]);
-        		$this->goWorkLog($data['company_id'], '企业转让', '<text class="orange">'.$member->realname.'</text>已接受企业管理权，成为本企业的新管理员');
+        		$this->goWorkLog($data['mem_id'],$data['company_id'], '企业转让', '<text class="orange">'.$member->realname.'</text>已接受企业管理权，成为本企业的新管理员');
             }else{
-              	$this->goWorkLog($data['company_id'], '企业转让', '<text class="orange">'.$member->realname.'</text>没有响应企业管理权的移交');
+              	$this->goWorkLog($data['mem_id'],$data['company_id'], '企业转让', '<text class="orange">'.$member->realname.'</text>没有响应企业管理权的移交');
             }
 
             TransferCompany::where('company_id','=',$data['company_id'])->where('new_admin','=',$data['member_id'])->update(['is_del' => 1,'status' => $data['type']]);
@@ -1155,10 +1155,11 @@ fclose($fp);*/
     }
 
     //记录操作日志的函数
-    private function goWorkLog($company_id,$title,$content,$godown_id=0){
+    private function goWorkLog($user_id,$company_id,$title,$content,$godown_id=0){
         $log = array();
         $log['title'] = $title;
         $log['godown_id'] = $godown_id;
+        $log['user_id'] = $user_id;
         $log['company_id'] = $company_id;
         $log['content'] = $content;
         $log['created_at'] = Carbon::now()->toDateTimeString();

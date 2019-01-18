@@ -246,13 +246,13 @@ class UserController
             return $this->verify_parameter('用户信息修改失败！', 0);
         }
 
-       if(count($upd) > 0){
+        if(count($upd) > 0){
           $title = '用户信息修改';
           $name = isset($upd['realname']) ? $upd['realname'] : $user->realname;
           $phone = isset($upd['mobile']) ? $upd['mobile'] : $user->mobile;
           $content = '<text class="orange">'.$user->realname.'</text>(旧名)修改了个人资料，新显示姓名为<text class="orange">'.$name.'</text>(新名)，新的联系电话为<text class="orange">'.$phone.'</text>';
-      	  $this->goWorkLog($data['company_id'], $title, $content);
-       }
+      	  $this->goWorkLog($data['user_id'],$data['company_id'], $title, $content);
+        }
           
         return response()->json($this->result);
     }
@@ -497,10 +497,11 @@ class UserController
     }
   
     //记录操作日志的函数
-    private function goWorkLog($company_id,$title,$content,$godown_id=0){
+    private function goWorkLog($user_id,$company_id,$title,$content,$godown_id=0){
         $log = array();
         $log['title'] = $title;
         $log['godown_id'] = $godown_id;
+        $log['user_id'] = $user_id;
         $log['company_id'] = $company_id;
         $log['content'] = $content;
         $log['created_at'] = Carbon::now()->toDateTimeString();

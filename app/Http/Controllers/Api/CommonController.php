@@ -519,18 +519,6 @@ class CommonController
             return $company_number;
         }
     }
-
-    //记录操作日志的函数
-    private function goWorkLog($company_id,$title,$content,$godown_id=0) {
-        $log = array();
-        $log['title'] = $title;
-        $log['godown_id'] = $godown_id;
-        $log['company_id'] = $company_id;
-        $log['content'] = $content;
-        $log['created_at'] = Carbon::now()->toDateTimeString();
-        $log['updated_at'] = Carbon::now()->toDateTimeString();
-        Worklog::insertGetId($log);
-    }
     
     //操作记录方法
     private function adminLog($company_id,$type,$content,$user_id,$identity) {
