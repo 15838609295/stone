@@ -78,11 +78,13 @@ class RecordController extends Controller {
 			$search = $request->post("search",'');  //搜索条件
 			
 			$total = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name')
-					->leftJoin('company as c', 'c.id', '=', 'wl.company_id');
+					->select('wl.*', 'c.company_name', 'm.realname', 'c.is_admin')
+					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
+					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			$rows = Worklog::from('work_log as wl')
-					->select('wl.*', 'c.company_name')
-					->leftJoin('company as c', 'c.id', '=', 'wl.company_id');
+					->select('wl.*', 'c.company_name', 'm.realname', 'c.is_admin')
+					->leftJoin('company as c', 'c.id', '=', 'wl.company_id')
+					->leftJoin('members as m', 'm.id', '=', 'wl.user_id');
 			
 	        if (trim($search)) {
 	        	$total->where(function ($query) use ($search) {
@@ -101,14 +103,7 @@ class RecordController extends Controller {
 					        ->get();
 			if ($lists) {
 				foreach ($lists as $k => &$v) {
-					$cu = CompanyUser::where('company_id', $v->company_id)->first();
-					if (! $cu) {
-						$v->realname = '';
-						$v->identity = '';
-					} else {
-						$v->realname = Members::where('id', $cu->user_id)->value('realname');
-						$v->identity = CompanyUser::IS_ADMIN[$cu->is_admin];
-					}
+					$v->identity = CompanyUser::IS_ADMIN[$v->is_admin];
 				}
 			}
 			$data['rows'] = $lists;
