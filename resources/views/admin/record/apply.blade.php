@@ -94,7 +94,7 @@
             },
             columns: [[
                 {field:'title', title:'标题', width:80},
-                {field:'created_at', title:'时间', width:180},
+                {field:'created_at', title:'时间', width:170},
                 {field:'company_name', title:'企业名称', width:80},
                 {field:'realname', title:'操作人', width:60},
                 {field:'identity', title:'职级', width:60},
