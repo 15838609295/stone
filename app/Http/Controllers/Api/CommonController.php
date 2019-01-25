@@ -72,8 +72,10 @@ class CommonController
         return response()->json($this->result);
     }
 
-    //创建企业
-    public function createCompany(Request $request){
+    /**
+     * 创建企业 
+     */
+    public function createCompany(Request $request) {
         $data = $request->post();
 
         //判断传值是否正确
@@ -93,10 +95,10 @@ class CommonController
             return $this->verify_parameter('company_pass'); //返回必传参数为空
         }
 
-        //判断公司名称是否重复
-        $comp = Company::where('company_name','=',$data['company_name'])->get();
-        if(count($comp)>0){
-            return $this->verify_parameter('该企业名已被注册',0); die;
+        // 判断公司名称是否重复
+        $numb = Company::where('company_name', $data['company_name'])->count();
+        if ($numb > 0) {
+            return $this->verify_parameter('该企业名已被注册', 0);
         }
 
         /*$compUser = CompanyUser::where('user_id','=',$data['mem_id'])->where('is_admin','=',1)->where('status','=',1)->first();
