@@ -19,7 +19,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Admin\Company;
 use DB;
-use Log;
 
 header("Access-Control-Allow-Origin: *");
 class ApiController  extends Controller{
@@ -2056,7 +2055,6 @@ class ApiController  extends Controller{
             return $this->verify_parameter('查询不到数据！！',0);
         }
 
-        Log::info('===============返回数据：'+$res);
         $this->result['data'] = $res;
         return response()->json($this->result);
     }
