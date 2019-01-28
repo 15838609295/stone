@@ -2051,8 +2051,8 @@ class ApiController  extends Controller{
         $res = $sale->orderBy('s.id','desc')
             ->skip($start)->take(20)
             ->get();
-
-        if(!$res){
+        Log::info('===============返回数据：', $res);
+        if (count($res) == 0) {
             return $this->verify_parameter('查询不到数据！！',0);
         }
 
