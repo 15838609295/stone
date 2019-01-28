@@ -19,6 +19,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Admin\Company;
 use DB;
+use Log;
 
 header("Access-Control-Allow-Origin: *");
 class ApiController  extends Controller{
