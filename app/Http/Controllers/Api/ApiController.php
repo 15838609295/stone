@@ -2052,11 +2052,11 @@ class ApiController  extends Controller{
         $res = $sale->orderBy('s.id','desc')
             ->skip($start)->take(20)
             ->get();
-        if (empty($res) || count($res) == 0) {
+        if (!$res) {
             return $this->verify_parameter('查询不到数据！！',0);
         }
 
-        Log::info('===============返回数据：', $res);
+        Log::info('===============返回数据：'+$res);
         $this->result['data'] = $res;
         return response()->json($this->result);
     }
