@@ -67,9 +67,9 @@ class OperateController extends Controller
                 $news[$k]['join_time'] = $v->join_time;
                 $news[$k]['login_time'] = $v->login_time;
                 $news[$k]['is_admin'] = $v->is_admin;
-                $news[$k]['cur_month_d'] = $this->getCurMonth($v->company_id, $v->user_id, 0); // $v->cur_month_d;
+                $news[$k]['cur_month_d'] = $this->getCurMonth($v->company_id, $v->user_id)[0]; // $v->cur_month_d;
                 $news[$k]['total_d'] = $this->getTotal($v->company_id, $v->user_id, 0); // $v->total_d;
-                $news[$k]['cur_month_c'] = $this->getCurMonth($v->company_id, $v->user_id, 1); // $v->cur_month_c;
+                $news[$k]['cur_month_c'] = $this->getCurMonth($v->company_id, $v->user_id)[1]; // $v->cur_month_c;
                 $news[$k]['total_c'] = $this->getTotal($v->company_id, $v->user_id, 1); // $v->total_c;
                 $news[$k]['total_j_d'] = $this->getTotalJ($v->company_id, $v->user_id, 0); // sprintf("%.0f", $v->total_j_d);
                 $news[$k]['total_j_c'] = $this->getTotalJ($v->company_id, $v->user_id, 1); // sprintf("%.0f", $v->total_j_c);
@@ -80,13 +80,30 @@ class OperateController extends Controller
         return view('admin.operate.user');
     }
 
-    private function getCurMonth($company_id, $user_id, $type) {
-        $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')";
-        return DB::select($sql, ['company_id' => $company_id, 'user_id' => $user_id, 'type' => $type]);
+    private function getCurMonth($company_id, $user_id) {
+        $result = [0, 0];
+        $rows = AdminLog::select('id, created_at')
+                ->where('company_id', $company_id)
+                ->where('user_id', $user_id)
+                ->get();
+        if (count($rows) > 0) {
+            foreach ($rows as $k => $v) {
+                if ($type == 0) {
+                    $result[1] += 1;
+                } else if ($type == 1) {
+                    $result[1] += 1;
+                }
+            }
+        }
+        return $result;
     }
 
     private function getTotal($company_id, $user_id, $type) {
-        return 0;
+        return AdminLog::select('id')
+                ->where('company_id', $company_id)
+                ->where('user_id', $user_id)
+                ->where('type', $type)
+                ->count();
     }
 
     private function getTotalJ($company_id, $user_id, $type) {
