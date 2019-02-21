@@ -81,38 +81,18 @@ class OperateController extends Controller
     }
 
     private function getCurMonth($company_id, $user_id, $type) {
-        return AdminLog::select('id')
-                ->where('user_id', $user_id)
-                ->where('company_id', $company_id)
-                ->where('type', $type)
-                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
-                ->count();
+        $sql = "select count(id) from admin_log as al where al.company_id = ".$company_id." and al.user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql);
     }
 
     private function getTotal($company_id, $user_id, $type) {
-        return AdminLog::from('admin_log')
-                ->select('id')
-                ->where('user_id', $user_id)
-                ->where('company_id', $company_id)
-                ->where('type', $type)
-                ->count();
+        $sql = "select count(id) from admin_log as al where al.company_id = ".$company_id." and al.user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql);
     }
 
     private function getTotalJ($company_id, $user_id, $type) {
-        $rows_1 = AdminLog::select('id')
-                ->where('user_id', $user_id)
-                ->where('company_id', $company_id)
-                ->where('type', $type)
-                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
-                ->count();
-        $rows_2 = AdminLog::select('id')
-                ->where('user_id', $user_id)
-                ->where('company_id', $company_id)
-                ->where('type', $type)
-                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
-                ->count();
-        $rows = $rows_1 + $rows_2;
-        return sprintf("%.0f", $rows);
+        $sql = "select count(id) from admin_log as al where al.company_id = ".$company_id." and al.user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql);
     }
 
     public function userinfo(Request $request) {
