@@ -32,12 +32,12 @@ class OperateController extends Controller
             $search = $request->post("search",'');  //搜索条件
 
             $sql = "select m.id,m.realname,cu.company_id,cu.user_id,c.company_name,m.mobile,cu.join_time,cu.login_time,cu.is_admin";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_d";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0) as total_d";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_c";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1) as total_c";
-            $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_d";
-            $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_c";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_d";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0) as total_d";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_c";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1) as total_c";
+            // $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_d";
+            // $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_c";
             $sql .= " from company as c inner join company_user as cu on cu.company_id=c.id";
             $sql .= " inner join members as m on cu.user_id=m.id";
 
@@ -55,29 +55,38 @@ class OperateController extends Controller
             }
 
             $rows = DB::select($sql);
-			$news = array();
-          	
-          	foreach ($rows as $k => $v) {
-            	$news[$k]['id'] = $v->id;
-            	$news[$k]['realname'] = $v->realname;
-            	$news[$k]['company_id'] = $v->company_id;
-            	$news[$k]['user_id'] = $v->user_id;
-            	$news[$k]['company_name'] = $v->company_name;
-            	$news[$k]['mobile'] = $v->mobile;
-            	$news[$k]['join_time'] = $v->join_time;
-            	$news[$k]['login_time'] = $v->login_time;
-            	$news[$k]['is_admin'] = $v->is_admin;
-            	$news[$k]['cur_month_d'] = $v->cur_month_d;
-            	$news[$k]['total_d'] = $v->total_d;
-            	$news[$k]['cur_month_c'] = $v->cur_month_c;
-            	$news[$k]['total_c'] = $v->total_c;
-            	$news[$k]['total_j_d'] = sprintf("%.0f", $v->total_j_d);
-            	$news[$k]['total_j_c'] = sprintf("%.0f", $v->total_j_c);
+            $news = array();
+            
+            foreach ($rows as $k => $v) {
+                $news[$k]['id'] = $v->id;
+                $news[$k]['realname'] = $v->realname;
+                $news[$k]['company_id'] = $v->company_id;
+                $news[$k]['user_id'] = $v->user_id;
+                $news[$k]['company_name'] = $v->company_name;
+                $news[$k]['mobile'] = $v->mobile;
+                $news[$k]['join_time'] = $v->join_time;
+                $news[$k]['login_time'] = $v->login_time;
+                $news[$k]['is_admin'] = $v->is_admin;
+                $news[$k]['cur_month_d'] = $this->getCurMonthD(); // $v->cur_month_d;
+                $news[$k]['total_d'] = 0; // $v->total_d;
+                $news[$k]['cur_month_c'] = 0; // $v->cur_month_c;
+                $news[$k]['total_c'] = 0; // $v->total_c;
+                $news[$k]['total_j_d'] = "%.0"; // sprintf("%.0f", $v->total_j_d);
+                $news[$k]['total_j_c'] = "%.0"; // sprintf("%.0f", $v->total_j_c);
             }
-          	$data['rows'] = $news;
+            $data['rows'] = $news;
             return response()->json($data);
         }
         return view('admin.operate.user');
+    }
+
+    private function getCurMonthD($company_id, $user_id) {
+        return AdminLog::from('admin_log as al')
+                ->select('count(id)')
+                ->where('user_id', $user_id)
+                ->where('company_id', $company_id)
+                ->where('type', 0)
+                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))");
     }
 
     public function userinfo(Request $request) {
@@ -159,25 +168,25 @@ class OperateController extends Controller
             }
 
             $rows = DB::select($sql);
-			$news = array();
-          	
-          	foreach ($rows as $k => $v) {
-            	$news[$k]['id'] = $v->id;
-            	$news[$k]['company_name'] = $v->company_name;
-            	$news[$k]['created_at'] = $v->created_at;
-            	$news[$k]['login_time'] = $v->login_time;
-            	$news[$k]['realname'] = $v->realname;
-            	$news[$k]['cur_month_d'] = $v->cur_month_d;
-            	$news[$k]['last_month_d'] = $v->last_month_d;
-            	$news[$k]['total_d'] = $v->total_d;
-            	$news[$k]['cur_month_c'] = $v->cur_month_c;
-            	$news[$k]['last_month_c'] = $v->last_month_c;
-            	$news[$k]['total_c'] = $v->total_c;
-            	$news[$k]['total_j_d'] = sprintf("%.0f", $v->total_j_d);
-            	$news[$k]['total_j_c'] = sprintf("%.0f", $v->total_j_d);
-            	$news[$k]['account_number'] = $v->account_number;
+            $news = array();
+            
+            foreach ($rows as $k => $v) {
+                $news[$k]['id'] = $v->id;
+                $news[$k]['company_name'] = $v->company_name;
+                $news[$k]['created_at'] = $v->created_at;
+                $news[$k]['login_time'] = $v->login_time;
+                $news[$k]['realname'] = $v->realname;
+                $news[$k]['cur_month_d'] = $v->cur_month_d;
+                $news[$k]['last_month_d'] = $v->last_month_d;
+                $news[$k]['total_d'] = $v->total_d;
+                $news[$k]['cur_month_c'] = $v->cur_month_c;
+                $news[$k]['last_month_c'] = $v->last_month_c;
+                $news[$k]['total_c'] = $v->total_c;
+                $news[$k]['total_j_d'] = sprintf("%.0f", $v->total_j_d);
+                $news[$k]['total_j_c'] = sprintf("%.0f", $v->total_j_d);
+                $news[$k]['account_number'] = $v->account_number;
             }
-          	$data['rows'] = $news;
+            $data['rows'] = $news;
           
             return response()->json($data);
         }
