@@ -32,12 +32,12 @@ class OperateController extends Controller
             $search = $request->post("search",'');  //搜索条件
 
             $sql = "select m.id,m.realname,cu.company_id,cu.user_id,c.company_name,m.mobile,cu.join_time,cu.login_time,cu.is_admin";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_d";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 0) as total_d";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_c";
-            $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 1) as total_c";
-            $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 0 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_d";
-            $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and al.type = 1 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_c";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_d";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0) as total_d";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')) as cur_month_c";
+            // $sql .= ",(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1) as total_c";
+            // $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 0 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_d";
+            // $sql .= ",(((select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))+(select count(id) from admin_log as al where c.id=al.company_id and cu.user_id = al.user_id and type = 1 and PERIOD_DIFF(date_format(now(),'%Y%m'),date_format(created_at,'%Y%m'))))/2) as total_j_c";
             $sql .= " from company as c inner join company_user as cu on cu.company_id=c.id";
             $sql .= " inner join members as m on cu.user_id=m.id";
 
@@ -67,12 +67,12 @@ class OperateController extends Controller
                 $news[$k]['join_time'] = $v->join_time;
                 $news[$k]['login_time'] = $v->login_time;
                 $news[$k]['is_admin'] = $v->is_admin;
-                $news[$k]['cur_month_d'] = $v->cur_month_d; // $this->getCurMonth($v->company_id, $v->user_id, 0);
-                $news[$k]['total_d'] = $v->total_d; // $this->getTotal($v->company_id, $v->user_id, 0);
-                $news[$k]['cur_month_c'] = $v->cur_month_c; // $this->getCurMonth($v->company_id, $v->user_id, 1);
-                $news[$k]['total_c'] = $v->total_c; // $this->getTotal($v->company_id, $v->user_id, 1);
-                $news[$k]['total_j_d'] = sprintf("%.0f", $v->total_j_d); // $this->getTotalJ($v->company_id, $v->user_id, 0);
-                $news[$k]['total_j_c'] = sprintf("%.0f", $v->total_j_c); // $this->getTotalJ($v->company_id, $v->user_id, 1);
+                $news[$k]['cur_month_d'] = $this->getCurMonth($v->company_id, $v->user_id, 0); // $v->cur_month_d;
+                $news[$k]['total_d'] = $this->getTotal($v->company_id, $v->user_id, 0); // $v->total_d;
+                $news[$k]['cur_month_c'] = $this->getCurMonth($v->company_id, $v->user_id, 1); // $v->cur_month_c;
+                $news[$k]['total_c'] = $this->getTotal($v->company_id, $v->user_id, 1); // $v->total_c;
+                $news[$k]['total_j_d'] = $this->getTotalJ($v->company_id, $v->user_id, 0); // sprintf("%.0f", $v->total_j_d);
+                $news[$k]['total_j_c'] = $this->getTotalJ($v->company_id, $v->user_id, 1); // sprintf("%.0f", $v->total_j_c);
             }
             $data['rows'] = $news;
             return response()->json($data);
@@ -80,20 +80,20 @@ class OperateController extends Controller
         return view('admin.operate.user');
     }
 
-    // private function getCurMonth($company_id, $user_id, $type) {
-    //     $sql = "select count(id) from admin_log where company_id = ".$company_id." and user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-    //     return DB::select($sql);
-    // }
+    private function getCurMonth($company_id, $user_id, $type) {
+        $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+    }
 
-    // private function getTotal($company_id, $user_id, $type) {
-    //     $sql = "select count(id) from admin_log where company_id = ".$company_id." and user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-    //     return DB::select($sql);
-    // }
+    private function getTotal($company_id, $user_id, $type) {
+        $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+    }
 
-    // private function getTotalJ($company_id, $user_id, $type) {
-    //     $sql = "select count(id) from admin_log where company_id = ".$company_id." and user_id = ".$user_id." and type = ".$type." and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-    //     return DB::select($sql);
-    // }
+    private function getTotalJ($company_id, $user_id, $type) {
+        $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
+        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+    }
 
     public function userinfo(Request $request) {
         
