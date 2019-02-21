@@ -67,12 +67,12 @@ class OperateController extends Controller
                 $news[$k]['join_time'] = $v->join_time;
                 $news[$k]['login_time'] = $v->login_time;
                 $news[$k]['is_admin'] = $v->is_admin;
-                $news[$k]['cur_month_d'] = $this->getCurMonthD(); // $v->cur_month_d;
-                $news[$k]['total_d'] = 0; // $v->total_d;
-                $news[$k]['cur_month_c'] = 0; // $v->cur_month_c;
-                $news[$k]['total_c'] = 0; // $v->total_c;
-                $news[$k]['total_j_d'] = "%.0"; // sprintf("%.0f", $v->total_j_d);
-                $news[$k]['total_j_c'] = "%.0"; // sprintf("%.0f", $v->total_j_c);
+                $news[$k]['cur_month_d'] = $this->getCurMonth($v->company_id, $v->user_id, 0); // $v->cur_month_d;
+                $news[$k]['total_d'] = $this->getTotal($v->company_id, $v->user_id, 0); // $v->total_d;
+                $news[$k]['cur_month_c'] = $this->getCurMonth($v->company_id, $v->user_id, 1); // $v->cur_month_c;
+                $news[$k]['total_c'] = $this->getTotal($v->company_id, $v->user_id, 1); // $v->total_c;
+                $news[$k]['total_j_d'] = $this->getTotalJ($v->company_id, $v->user_id, 0); // sprintf("%.0f", $v->total_j_d);
+                $news[$k]['total_j_c'] = $this->getTotalJ($v->company_id, $v->user_id, 1); // sprintf("%.0f", $v->total_j_c);
             }
             $data['rows'] = $news;
             return response()->json($data);
@@ -80,13 +80,39 @@ class OperateController extends Controller
         return view('admin.operate.user');
     }
 
-    private function getCurMonthD($company_id, $user_id) {
-        return AdminLog::from('admin_log as al')
-                ->select('count(id)')
+    private function getCurMonth($company_id, $user_id, $type) {
+        return AdminLog::select('id')
                 ->where('user_id', $user_id)
                 ->where('company_id', $company_id)
-                ->where('type', 0)
-                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))");
+                ->where('type', $type)
+                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                ->count();
+    }
+
+    private function getTotal($company_id, $user_id, $type) {
+        return AdminLog::from('admin_log')
+                ->select('id')
+                ->where('user_id', $user_id)
+                ->where('company_id', $company_id)
+                ->where('type', $type)
+                ->count();
+    }
+
+    private function getTotalJ($company_id, $user_id, $type) {
+        $rows_1 = AdminLog::select('id')
+                ->where('user_id', $user_id)
+                ->where('company_id', $company_id)
+                ->where('type', $type)
+                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                ->count();
+        $rows_2 = AdminLog::select('id')
+                ->where('user_id', $user_id)
+                ->where('company_id', $company_id)
+                ->where('type', $type)
+                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                ->count();
+        $rows = $rows_1 + $rows_2;
+        return sprintf("%.0f", $rows);
     }
 
     public function userinfo(Request $request) {
