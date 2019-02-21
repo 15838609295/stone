@@ -74,9 +74,9 @@
             showExport: true,
             exportDataType: "all",
             exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
-            pageSize: 10,
+            pageSize: 50,
             pageNumber: 1, // 首页页码
-            pageList: [10, 25, 50, 'All'],
+            pageList: [50],
             pagination: true,
             clickToSelect: true, //是否启用点击选中
             dblClickToEdit: true, //是否启用双击编辑
