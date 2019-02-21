@@ -23,6 +23,7 @@ class OperateController extends Controller
      * 用户列表
      */
     public function user (Request $request) {
+        
         if ($request->ajax()) {
             $sortName = $request->post("sortName");    //排序列名
             $sortOrder = $request->post("sortOrder");   //排序（desc，asc）
@@ -79,7 +80,8 @@ class OperateController extends Controller
         return view('admin.operate.user');
     }
 
-    public function userinfo(Request $request){
+    public function userinfo(Request $request) {
+        
         if ($request->ajax()) {
             $sortName = $request->post("sortName");    //排序列名
             $sortOrder = $request->post("sortOrder");   //排序（desc，asc）
@@ -117,8 +119,9 @@ class OperateController extends Controller
         return view('admin.operate.userinfo',['user_id' => $request->user_id, 'company_id' => $request->company_id]);
     }
 
-    public function company(Request $request){
-        if($request->ajax()){
+    public function company(Request $request) {
+        
+        if ($request->ajax()) {
 
             $sortName = $request->post("sortName");    //排序列名
             $sortOrder = $request->post("sortOrder");   //排序（desc，asc）
@@ -143,7 +146,7 @@ class OperateController extends Controller
             $sql .= " from company as c inner join company_user as cu on cu.company_id=c.id";
             $sql .= " inner join members as m on m.id=cu.user_id where cu.is_admin=1";
 
-            if($search){
+            if ($search) {
                 $sql .= " and (c.company_name like '%". $search ."%' or m.realname like '%". $search ."%')";
             }
 
@@ -158,7 +161,7 @@ class OperateController extends Controller
             $rows = DB::select($sql);
 			$news = array();
           	
-          	foreach($rows as $k => $v){
+          	foreach ($rows as $k => $v) {
             	$news[$k]['id'] = $v->id;
             	$news[$k]['company_name'] = $v->company_name;
             	$news[$k]['created_at'] = $v->created_at;
@@ -177,12 +180,12 @@ class OperateController extends Controller
           	$data['rows'] = $news;
           
             return response()->json($data);
-
         }
         return view('admin.operate.company');
     }
 
-    public function companyinfo(Request $request){
+    public function companyinfo(Request $request) {
+        
         if ($request->ajax()) {
             $sortName = $request->post("sortName");    //排序列名
             $sortOrder = $request->post("sortOrder");   //排序（desc，asc）
@@ -213,8 +216,8 @@ class OperateController extends Controller
             $data['rows'] = $query->orderBy($sortName, $sortOrder)->get();
 
             return response()->json($data);
-
         }
         return view('admin.operate.companyinfo',['company_id' => $request->company_id]);
     }
+    
 }
