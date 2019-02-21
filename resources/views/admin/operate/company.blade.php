@@ -12,10 +12,10 @@
 
 @section('content')
 <div class="row">
-	<div class="box" style="border-top:0;">
-	    @include('admin.partials.errors')
-	    @include('admin.partials.success')
-	</div>
+    <div class="box" style="border-top:0;">
+        @include('admin.partials.errors')
+        @include('admin.partials.success')
+    </div>
 </div>
 <div class="panel panel-default panel-intro">
     <div class="panel-body">
@@ -76,8 +76,7 @@
             exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
             pageSize: 10,
             pageNumber: 1, // 首页页码
-            // pageList: [10, 25, 50, 'All'],
-            pageList: [10],
+            pageList: [10, 25, 50, 'All'],
             pagination: true,
             clickToSelect: true, //是否启用点击选中
             dblClickToEdit: true, //是否启用双击编辑
@@ -117,7 +116,7 @@
                 {field:'total_c', title: '总操作次数',sortable: true},
                 {field:'total_j_d', title: '月均登录次数',sortable: true},
                 {field:'total_j_c', title: '月均操作次数',sortable: true},
-                {field:'user_number', title: '账号数量',sortable: true},
+                {field:'account_number', title: '账号数量',sortable: true},
                 {
                     field:'created_at',
                     title: '创建时间',
