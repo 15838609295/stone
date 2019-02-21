@@ -82,17 +82,17 @@ class OperateController extends Controller
 
     private function getCurMonth($company_id, $user_id, $type) {
         $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+        return DB::select($sql, ['company_id' => $company_id, 'user_id' => $user_id, 'type' => $type]);
     }
 
     private function getTotal($company_id, $user_id, $type) {
         $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+        return DB::select($sql, ['company_id' => $company_id, 'user_id' => $user_id, 'type' => $type]);
     }
 
     private function getTotalJ($company_id, $user_id, $type) {
         $sql = "select count(id) from admin_log where company_id = :company_id and user_id = :user_id and type = :type and DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m'))";
-        return DB::select($sql, [':company_id' => $company_id, ':user_id' => $user_id, ':type' => $type]);
+        return DB::select($sql, ['company_id' => $company_id, 'user_id' => $user_id, 'type' => $type]);
     }
 
     public function userinfo(Request $request) {
