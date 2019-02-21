@@ -85,7 +85,7 @@ class OperateController extends Controller
                 ->where('user_id', $user_id)
                 ->where('company_id', $company_id)
                 ->where('type', $type)
-                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
                 ->count();
     }
 
@@ -103,13 +103,13 @@ class OperateController extends Controller
                 ->where('user_id', $user_id)
                 ->where('company_id', $company_id)
                 ->where('type', $type)
-                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
                 ->count();
         $rows_2 = AdminLog::select('id')
                 ->where('user_id', $user_id)
                 ->where('company_id', $company_id)
                 ->where('type', $type)
-                ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
+                // ->where("DATE_FORMAT(created_at,'%Y%m')", "DATE_FORMAT(CURDATE(),'%Y%m'))")
                 ->count();
         $rows = $rows_1 + $rows_2;
         return sprintf("%.0f", $rows);
