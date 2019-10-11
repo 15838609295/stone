@@ -639,14 +639,19 @@ class ApiController  extends Controller{
 
         $ga = GoodsAttr::where('id', '=', $data['goods_attr_id'])->first();
 
-        //判断是否已有产品
+        //入库表判断是否已有产品
         $count = JoinDepot::from('joindepot as j')
             ->leftJoin('goods_attr as ga', 'ga.id', '=', 'j.goods_attr_id')
             ->where('j.godown_no', '=', $data['godown_no'])
             ->where('ga.company_id', '=', $ga->company_id)
             ->count();
-
-        if ($count > 0) {
+        //产品表
+        $g_count = Godown::from('godown as g')
+            ->leftJoin('goods_attr as ga', 'ga.id', '=', 'g.goods_attr_id')
+            ->where('j.godown_no', '=', $data['godown_no'])
+            ->where('ga.company_id', '=', $ga->company_id)
+            ->count();
+        if ($count > 0 || $g_count > 0) {
             return $this->verify_parameter('该产品编号已经被注册了！！', 0);
         }
 
@@ -849,8 +854,9 @@ class ApiController  extends Controller{
             JoinDepot::where("id","=",$data['godown_id'])->update($data_ins);
 
             //库存表更新          
-            Godown::where("id","=",$data['godown_id'])->update($data_ins);
-//            Godown::where("godown_no","=",$godown->godown_no)->update($data_ins);
+           // Godown::where("id","=",$data['godown_id'])->update($data_ins);
+            $goods_attr_id = $godown->goods_attr_id;
+            Godown::where("godown_no","=",$godown->godown_no)->where('goods_attr_id',$goods_attr_id)->update($data_ins);
 
             DB::commit();
         } catch(\Illuminate\Database\QueryException $ex) {
@@ -1043,8 +1049,7 @@ class ApiController  extends Controller{
 
             //入库表更新
             $arr_joindepot['godown_status'] = 1;
-            JoinDepot::where('id','=',$data['godown_id'])->update($arr_joindepot);
-//            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
+            JoinDepot::where('godown_no','=',$godown->godown_no)->where('goods_attr_id',$godown->goods_attr_id)->update($arr_joindepot);
 
             DB::commit();
         } catch(\Illuminate\Database\QueryException $ex) {
@@ -1102,8 +1107,7 @@ class ApiController  extends Controller{
             // 入库表更新
             if(!Opencut::where('godown_id', $opencut->godown_id)->where('id', '<>', $opencut->id)->exists()){
                 $arrDepot_upd['godown_status'] = 0;
-//                JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
-                JoinDepot::where('id','=',$opencut->godown_id)->update($arrDepot_upd);
+                JoinDepot::where('godown_no', '=', $godown->godown_no)->where('goods_attr_id',$godown->goods_attr_id)->update($arrDepot_upd);
             }
 
             //产品表更新
@@ -1722,8 +1726,7 @@ class ApiController  extends Controller{
 
             //入库表更新
             $arr_joindepot['godown_status'] = 1;
-            JoinDepot::where('id','=',$data['godown_id'])->update($arr_joindepot);
-//            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
+            JoinDepot::where('godown_no','=',$godown->godown_no)->where('goods_attr_id',$godown->goods_attr_id)->update($arr_joindepot);
 
             //库存表更新
             $data_upd['godown_number'] = $sale_sale_number;  //($godown->godown_number)-$data['sale_number'];
@@ -1809,8 +1812,7 @@ class ApiController  extends Controller{
 
                 if($godown->type == 0 || !Opencut::where('godown_id',  $sale->godown_id)->exists()){
                     $arrDepot_upd['godown_status'] = 0;
-                    JoinDepot::where('id','=',$sale->godown_id)->update($arrDepot_upd);
-//                    JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
+                    JoinDepot::where('godown_no', '=', $godown->godown_no)->where('goods_attr_id',$godown->goods_attr_id)->update($arrDepot_upd);
                 }
 
             }

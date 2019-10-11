@@ -1074,20 +1074,26 @@ class CommonController
         }
         return false;
     }
+
     //图片制作缩略图
     public function imageThumbnail($old_src){
-        ini_set('memory_limit','1048576M');
+        ini_set('memory_limit','2048M');
+        ini_set("gd.jpeg_ignore_warning", 1);
         //成功返回1，格式不符合返回2，生成图片失败返回3
+        $info = pathinfo($old_src);
         $data = getimagesize($old_src);
-
-        $width = $data[0]/10;
-        $height = $data[1]/10;
-
+        if (!$info || !$data){
+            $old_src = substr($old_src,1);
+            return $old_src;
+        }
+        $width = $data[0]/2;
+        $height = $data[1]/2;
+        $file_name = $info['basename'];
         $new_path = './uploads/thumbnail/'.date('Ymd',time());
         if (!is_dir($new_path)){
             mkdir($new_path,0777,true);
         }
-        $new_src = $new_path.'/'.time().'.jpg';
+        $new_src = $new_path.'/'.$file_name;
         $new_width = $width;
         $new_height= $height;
         $rate=100;
@@ -1144,6 +1150,10 @@ class CommonController
             imagedestroy($newim);
             $a = imagedestroy($cutim);
             if ($a) {
+                $img_size = ceil(filesize($new_src) / 1000); //获取文件大小
+                if ($img_size > 500){
+                    $this->imageThumbnail($new_src);
+                }
                 return $new_src;
             } else {
                 return false;
