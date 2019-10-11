@@ -11,6 +11,18 @@
 @stop
 
 @section('content')
+    <style>
+        .btn-gray{
+            background-color: #b7b7b7;
+            color: #fff;
+        }
+
+        .btn-gray:hover {
+            color: #fff;
+            background-color: #7a7a7a;
+            border-color: #7a7a7a;
+        }
+    </style>
 <div class="row">
 	<div class="box" style="border-top:0;">
 	    @include('admin.partials.errors')
@@ -163,7 +175,19 @@
                     title: '详情',
                     sortable: true,
                     formatter: function (value, row, index) {
-                        return '<a href="/admin/market_godown/info?goods_attr_name='+row['goods_attr_name']+'" class="btn btn-xs btn-success btn-editone">产品详情</a> ';
+                        var html= '';
+                        html += '<a href="/admin/market_godown/info?goods_attr_name='+row['goods_attr_name']+'" class="btn btn-xs btn-success btn-editone">产品详情</a> ';
+                        if (row['authentication'] == '0'){
+                            html += '<a href="#" title="未认证" attr="'+ row['goods_attr_name'] +'" class="commbtnBtn btn btn-xs btn-gray btn-authentication">未认证 </a> ';
+                        }else{
+                            html += '<a href="#" title="已认证" attr="'+ row['goods_attr_name'] +'" class="commbtnBtn btn btn-xs btn-warning btn-unsetauthentication">已认证 </a> ';
+                        }
+                        if (row['status'] == '0'){
+                            html += '<a href="#" title="已下架" attr="'+ row['goods_attr_name'] +'" class="deleteBtn btn btn-xs  btn-gray btn-upperShelf">已下架 </a> ';
+                        }else{
+                            html += '<a href="#" title="已上架" attr="'+ row['goods_attr_name'] +'" class="deleteBtn btn btn-xs  btn-info btn-lowerShelf">已上架 </a> ';
+                        }
+                        return html;
                     }
                 },
             ]]
@@ -190,5 +214,71 @@
             $('#table').bootstrapTable('refresh');
         });
     });
+</script>
+<script>
+    //认证
+    $(document).on('click','.btn-authentication',function () {
+        var goods_attr_name = $(this).attr('attr');
+        $.post(
+            '/admin/market_godown/authentication',
+            {'name':goods_attr_name},
+            function (d) {
+                if(d.status == 0){
+                    alert('修改成功！！！');
+                }else{
+                    alert('修改失败！！！');
+                }
+                window.location.reload();
+            }
+        );
+    });
+    //取消认证
+    $(document).on('click','.btn-unsetauthentication',function () {
+        var goods_attr_name = $(this).attr('attr');
+        $.post(
+            '/admin/market_godown/unsetauthentication',
+            {'name':goods_attr_name},
+            function (d) {
+                if(d.status == 0){
+                    alert('修改成功！！！');
+                }else{
+                    alert('修改失败！！！');
+                }
+                window.location.reload();
+            }
+        );
+    });
+    //上架
+    $(document).on('click','.btn-upperShelf',function () {
+        var goods_attr_name = $(this).attr('attr');
+        $.post(
+            '/admin/market_godown/upperShelf',
+            {'name':goods_attr_name},
+            function (d) {
+                if(d.status == 0){
+                    alert('修改成功！！！');
+                }else{
+                    alert('修改失败！！！');
+                }
+                window.location.reload();
+            }
+        );
+    });
+    //下架
+    $(document).on('click','.btn-lowerShelf',function () {
+        var goods_attr_name = $(this).attr('attr');
+        $.post(
+            '/admin/market_godown/lowerShelf',
+            {'name':goods_attr_name},
+            function (d) {
+                if(d.status == 0){
+                    alert('修改成功！！！');
+                }else{
+                    alert('修改失败！！！');
+                }
+                window.location.reload();
+            }
+        );
+    })
 </script>
 @stop

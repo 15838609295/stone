@@ -28,7 +28,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Admin\Members;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 
 class WechatController   extends Controller
 {
@@ -244,6 +246,7 @@ class WechatController   extends Controller
      * @param rk_sort - 入库时间（1升，0降）
      * @param st_sort - 库存数量（1升，0降）
      * @param xs_sort - 已销售额（1升，0降）
+     * @param sell_out - 售罄是否隐藏（1是，0否）
      */
     public function databaseList(Request $request) {
 
@@ -309,6 +312,37 @@ class WechatController   extends Controller
             ->leftJoin('goods_attr as ga','g.goods_attr_id','=','ga.id')
             ->leftJoin('depots as d','d.id','=','g.depot_id')
             ->where('d.company_id', $data['company_id']);
+      
+//        if(isset($data['sell_out']) && trim($data['sell_out']) != 1){
+//            $godown->where(function ($query) {
+//                    $query->where('g.type', 1)
+//                        ->where('g.godown_number',0)
+//                        ->orWhere(function ($query) {
+//                            $query->where('g.type', 0)
+//                                ->where('g.godown_weight',0);
+//                        });
+//                });
+//        }else{
+//            $godown->where(function ($query) {
+//                $query->where('g.type', 1)
+//                    ->where('g.godown_number','>',0)
+//                    ->orWhere(function ($query) {
+//                        $query->where('g.type', 0)
+//                            ->where('g.godown_weight','>',0);
+//                    });
+//            });
+//        }
+        if(isset($data['sell_out']) && trim($data['sell_out']) != 1){
+            $godown->where(function ($query) {
+                    $query->where('g.type',1)
+                        ->where('g.godown_number','>',0)
+                        ->orWhere(function ($query) {
+                            $query->where('g.type',0)
+                                ->where('g.godown_weight','>',0);
+                        });
+                });
+        }
+      
 
         if (isset($data['goods_attr_id']) && trim($data['goods_attr_id']) != '') {
             $godown->where('g.goods_attr_id', $data['goods_attr_id']);
@@ -326,6 +360,7 @@ class WechatController   extends Controller
                       ->orwhere('g.godown_no', 'like', '%'.$data['soso'].'%');
             });
         }
+      
 		$total = $godown->count();
 
         // 排序: rk_sort-入库时间
@@ -376,6 +411,7 @@ class WechatController   extends Controller
         }
         $resData = $res->toArray();
 
+
         // 排序：xs_sort-已销售额
         if (isset($data['xs_sort']) && trim($data['xs_sort']) != '') {
             if (1 == $data['xs_sort']) {
@@ -383,12 +419,14 @@ class WechatController   extends Controller
             } else {
                 $collection = collect($resData)->sortByDesc('sale_total_price');
             }
+  
             $this->result['data'] = $collection->values()->all();
         } else {
             $this->result['data'] = $resData;
         }
 
 		$this->result['total'] = $total;
+
         return response()->json($this->result);
     }
 

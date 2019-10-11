@@ -15,7 +15,7 @@ use App\Models\Admin\Company;
 use App\Models\Admin\Godown;
 use App\Models\Admin\GoodsAttr;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 
@@ -25,6 +25,7 @@ class CompanyController extends Controller{
 	//企业列表
 	public function index(Request $request){
 		if ($request->ajax()) {
+          
             $sortName = $request->post("sortName");    //排序列名
 			$sortOrder = $request->post("sortOrder");   //排序（desc，asc）
 			$pageNumber = $request->post("pageNumber");  //当前页码
@@ -232,22 +233,62 @@ class CompanyController extends Controller{
         }
         return view('admin.company.depots',array('id'=>$id,'name' => Company::find($id)->company_name));
     }
-
+      
+    //增加公司标签 
     public function ajax(Request $request,$id){
 
-	    if(!$request->volid_time){
-            $this->result['status'] = 1;
+        $type = $request->type;
+        if ($type == 1){  //获取详情
+            $res = Company::find($id);
+            if (!$res){
+                $this->result['status'] = 1;
+                return response()->json($this->result);
+            }
+            $res = json_decode(json_encode($res),true);
+            $this->result['data'] = $res;
             return response()->json($this->result);
         }
 
-	    $bool = Company::where('id','=',$id)->update(['volid_time'=>$request->volid_time]);
+//	    if(!$request->volid_time || !$request->name || !$request->sort){
+//            $this->result['status'] = 1;
+//            return response()->json($this->result);
+//        }
+        if($request->name){
+            $data['company_name'] = $request->name;
+        }else{
+            $data['company_name'] = '';
+        }
+        if($request->volid_time){
+            $data['volid_time'] = $request->volid_time;
+        }else{
+            $data['volid_time'] = '';
+        }
+        if($request->sort){
+            $data['sort'] = $request->sort;
+            $lod_data = Company::where('sort',$data['sort'])->get();
+            if ($lod_data){
+                $lod_data = json_decode(json_encode($lod_data),true);
+                foreach ($lod_data as $v){
+                    $where['sort'] = 0;
+                    Company::where('id',$v['id'])->update($where);
+                }
+            }
+        }else{
+            $data['sort'] = 0;
+        }
+
+        if ($request->chk_value){
+            $data['label'] = json_encode($request->chk_value);
+        }else{
+            $data['label'] = '';
+        }
+        //修改
+	    $bool = Company::where('id','=',$id)->update($data);
         if(!$bool){
             $this->result['status'] = 1;
             return response()->json($this->result);
         }
-
         return response()->json($this->result);
-
     }
   
   	public function deleteCompany($id){
@@ -285,5 +326,43 @@ class CompanyController extends Controller{
             return redirect('/admin/company/index')->withErrors("更新失败");
         }
       	return redirect('/admin/company/index')->withSuccess("更新成功");
+    }
+
+    //上传企业logo
+    public function uploadLogo(Request $request){
+        $id = $request->input('id','');
+        $logo_name = 'log'.time();
+        $logo_type = $_FILES['logo']['type'];
+        $logo_tmp = $_FILES['logo']['tmp_name'];
+        $cover_name =  'cove'.time();
+        $cover_type = $_FILES['cover']['type'];
+        $cover_tmp = $_FILES['cover']['tmp_name'];
+        if ($_FILES['logo']['size'] < 0 && $_FILES['cover']['size'] < 0){
+            return redirect('/admin/company/index')->withErrors("更新失败");
+        }
+        //处理图片
+        $filepath = 'uploads/picture';
+        $date = date('Ymd',time());
+        $new_path = $filepath.'/'.$date;
+        if (!is_dir($new_path)){
+            mkdir($new_path);
+        }
+        if ($_FILES['logo'] && $_FILES['logo']['size'] > 0){
+            move_uploaded_file($logo_tmp,$new_path.'/'.$logo_name.'.png');
+            $where['logo'] = $new_path.'/'.$logo_name.'.png';
+        }else{
+            return redirect('/admin/company/index')->withErrors("更新失败");
+        }
+        if ($_FILES['cover'] && $_FILES['cover']['size'] > 0){
+            move_uploaded_file($cover_tmp,$new_path.'/'.$cover_name.'.png');
+        $where['cover'] = $new_path.'/'.$cover_name.'.png';
+        }else{
+            return redirect('/admin/company/index')->withErrors("更新失败");
+        }
+        $res = Company::where('id','=',$id)->update($where);
+        if (!$res){
+            return redirect('/admin/company/index')->withErrors("更新失败");
+        }
+        return redirect('/admin/company/index')->withSuccess("更新成功");
     }
 }

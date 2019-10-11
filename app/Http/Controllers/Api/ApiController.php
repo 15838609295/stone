@@ -18,7 +18,7 @@ use App\Models\Admin\Worklog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Admin\Company;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 header("Access-Control-Allow-Origin: *");
 class ApiController  extends Controller{
@@ -84,6 +84,16 @@ class ApiController  extends Controller{
 
         $data_ins['created_at'] = Carbon::now()->toDateTimeString();
         $data_ins['updated_at'] = Carbon::now()->toDateTimeString();
+        //根据名称设置认证状态和上下架状态
+        $res = DB::table('goods_attr')->where('goods_attr_name',$data_ins['goods_attr_name'])->first();
+        if ($res){
+            $res = json_decode(json_encode($res),true);
+            $data_ins['authentication'] = $res['authentication'];
+            $data_ins['status'] = $res['status'];
+        }else{
+            $data_ins['authentication'] = 0;
+            $data_ins['status'] = 0;
+        }
 
         $bool = GoodsAttr::insertGetId($data_ins); //插入数据库
         if(!$bool){
@@ -168,6 +178,16 @@ class ApiController  extends Controller{
         $goodsattr = GoodsAttr::where("id","=",$data['goods_attr_id'])->first();
 
         $data_upd['goods_attr_name'] = $data['goods_attr_name'];
+        //修改产品规格名称 随即修改规格状态
+        $res = DB::table('goods_attr')->where('goods_attr_name',$data_upd['goods_attr_name'])->first();
+        if ($res){
+            $res = json_decode(json_encode($res),true);
+            $data_upd['authentication'] = $res['authentication'];
+            $data_upd['status'] = $res['status'];
+        }else{
+            $data_upd['authentication'] = 0;
+            $data_upd['status'] = 0;
+        }
         $bool = GoodsAttr::where("id","=",$data['goods_attr_id'])->update($data_upd);
 
         if(!$bool){
@@ -641,6 +661,7 @@ class ApiController  extends Controller{
 
         $data_ins['created_at'] = Carbon::now()->toDateTimeString();
         $data_ins['updated_at'] = Carbon::now()->toDateTimeString();
+        $data_ins['status'] = 1;
 
         $godown_id = Godown::create($data_ins); //插入数据库
         $godown_id = $godown_id->id;
@@ -705,9 +726,10 @@ class ApiController  extends Controller{
         DB::beginTransaction();
         try {
             $joindepot->delete();
-            $godowns = Godown::where('godown_no','=',$godown_no)->first();
+            $godowns = Godown::where('id','=',$data['godown_id'])->first();
             $godown_id = $godowns->id;
-            Godown::where('godown_no','=',$godown_no)->delete();
+//            Godown::where('godown_no','=',$godown_no)->delete();
+            Godown::where('id','=',$godown_id)->delete();
 
             Opencut::where('godown_id','=',$godown_id)->delete();
             Dispatch::where('godown_id','=',$godown_id)->delete();
@@ -725,12 +747,12 @@ class ApiController  extends Controller{
         $this->adminLog($depots->company_id,1,'删除入库单',$data['mem_id'],CompanyUser::IS_ADMIN[$request->user_infos->is_admin]);
 
         return response()->json($this->result);
-    }
+    } 
 
     //入库单修改
     public function updateGoDown(Request $request){
         $data = $request->post();
-
+          
         //判断传值是否正确
         if(!isset($data['member_name']) || trim($data['member_name']) == ''){
             return $this->verify_parameter('member_name'); //返回必传参数为空
@@ -826,8 +848,9 @@ class ApiController  extends Controller{
             //入库表更新
             JoinDepot::where("id","=",$data['godown_id'])->update($data_ins);
 
-            //库存表更新
-            Godown::where("godown_no","=",$godown->godown_no)->update($data_ins);
+            //库存表更新          
+            Godown::where("id","=",$data['godown_id'])->update($data_ins);
+//            Godown::where("godown_no","=",$godown->godown_no)->update($data_ins);
 
             DB::commit();
         } catch(\Illuminate\Database\QueryException $ex) {
@@ -1020,7 +1043,8 @@ class ApiController  extends Controller{
 
             //入库表更新
             $arr_joindepot['godown_status'] = 1;
-            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
+            JoinDepot::where('id','=',$data['godown_id'])->update($arr_joindepot);
+//            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
 
             DB::commit();
         } catch(\Illuminate\Database\QueryException $ex) {
@@ -1078,7 +1102,8 @@ class ApiController  extends Controller{
             // 入库表更新
             if(!Opencut::where('godown_id', $opencut->godown_id)->where('id', '<>', $opencut->id)->exists()){
                 $arrDepot_upd['godown_status'] = 0;
-                JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
+//                JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
+                JoinDepot::where('id','=',$opencut->godown_id)->update($arrDepot_upd);
             }
 
             //产品表更新
@@ -1697,7 +1722,8 @@ class ApiController  extends Controller{
 
             //入库表更新
             $arr_joindepot['godown_status'] = 1;
-            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
+            JoinDepot::where('id','=',$data['godown_id'])->update($arr_joindepot);
+//            JoinDepot::where('godown_no','=',$godown->godown_no)->update($arr_joindepot);
 
             //库存表更新
             $data_upd['godown_number'] = $sale_sale_number;  //($godown->godown_number)-$data['sale_number'];
@@ -1748,9 +1774,9 @@ class ApiController  extends Controller{
             return $this->verify_parameter('sale_id'); //返回必传参数为空
         }
         $sale = Sale::find((int)$data['sale_id']);
-        if($sale->status==1){
-            return $this->verify_parameter('该订单已不能修改',0);
-        }
+        // if($sale->status==1){
+        //     return $this->verify_parameter('该订单已不能修改',0);
+        // }
 
         //判断产品是否已经使用
         $godown = Godown::find((int)$sale->godown_id);
@@ -1783,7 +1809,8 @@ class ApiController  extends Controller{
 
                 if($godown->type == 0 || !Opencut::where('godown_id',  $sale->godown_id)->exists()){
                     $arrDepot_upd['godown_status'] = 0;
-                    JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
+                    JoinDepot::where('id','=',$sale->godown_id)->update($arrDepot_upd);
+//                    JoinDepot::where('godown_no', '=', $godown->godown_no)->update($arrDepot_upd);
                 }
 
             }

@@ -33,11 +33,11 @@ class UploadFile{
             chmod($this->path,0777);
         }
         
-        if ($file->getClientSize()>5*1024*1024) {
-            $this->result["status"] = 1;
-            $this->result["msg"] = "上传失败,文件大小不能超过5M";
-            return $this->result;
-        }
+        //if ($file->getClientSize()>5*1024*1024) {
+        //    $this->result["status"] = 1;
+        //    $this->result["msg"] = "上传失败,文件大小不能超过5M";
+        //    return $this->result;
+        //}
         
         if (!(in_array($file->getMimeType(),$this->config["type"]))) {
             $this->result["status"] = 1;

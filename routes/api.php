@@ -68,6 +68,17 @@ Route::any('getCompanyGoDown','Api\CommonController@getCompanyGoDown');  //获�
 Route::any('getCompanyGoDownList','Api\CommonController@getCompanyGoDownList');  //获取单个公司产品信息列表
 Route::any('getGoodsAttr','Api\CommonController@getGoodsAttr');  //查询品种
 
+Route::any('companyList','Api\CommonController@companyList');  //公司列表
+Route::any('productList','Api\CommonController@productList');  //产品列表
+Route::any('getOpenid','Api\CommonController@getOpenid');  //获取openid
+Route::any('collection','Api\CommonController@collection');  //用户收藏
+Route::any('myCollection','Api\CommonController@myCollection');  //我的收藏
+Route::any('getMemInfo','Api\CommonController@getUserInfo');  //获取用户信息
+Route::any('cancelCollction','Api\CommonController@cancelCollction');  //取消收藏
+Route::any('goodsIdInfo','Api\CommonController@goodsIdInfo');  //产品详情
+Route::any('sellCompanyList','Api\CommonController@sellCompanyList');  //产品所售卖公司列表
+
+
 // 账号相关接口
 Route::any('getCompanyUserInfo','Api\UserController@getCompanyUserInfo');  //查询公司用户信息
 Route::any('getCompanyUserLoginLog','Api\UserController@getCompanyUserLoginLog');  //查询公司用户登录记录

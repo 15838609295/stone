@@ -51,7 +51,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">设置企业有效期</h4>
+                <h4 class="modal-title">企业信息设置</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -59,6 +59,36 @@
                     <div class="col-md-5">
                         <input type="hidden" name="company_id" id="company_id" value="">
                         <input type="text" class="date1 form-control" id="nexttime1" name="nexttime1"  style="display:inline;width:auto;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">企业名称</label>
+                    <div class="col-md-5">
+                        <input type="text" class="date1 form-control" id="name" name="name"  style="display:inline;width:auto;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 90px;">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">企业标签</label>
+                    <div class="col-md-8">
+                        <label><input name="label" type="checkbox" value="矿山直营" />矿山直营 </label>
+                        <label><input name="label" type="checkbox" value="一级卖场" />一级卖场 </label><br/>
+                        <label><input name="label" type="checkbox" value="精细代工" />精细代工 </label>
+                        <label><input name="label" type="checkbox" value="售后担保" />售后担保 </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">企业是否置顶</label>
+                    <div class="col-md-8">
+                        <label><input name="sort" type="radio" value="4" />否 </label>&nbsp;
+                        <label><input name="sort" type="radio" value="1" />第一 </label>&nbsp;
+                        <label><input name="sort" type="radio" value="2" />第二 </label>&nbsp;
+                        <label><input name="sort" type="radio" value="3" />第三 </label>
                     </div>
                 </div>
             </div>
@@ -71,6 +101,47 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modal-uptade" tabIndex="-1">
+    <form action="/admin/company/uploadLogo" method="post" enctype="multipart/form-data" id="Form">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">上传企业LOGO和封面图片</h4>
+            </div>
+            <div class="modal-body" style="height: 220px;">
+                <div class="form-group col-md-12">
+                    <label class="col-md-3 control-label">企业LOGO</label>
+                    <div class="col-md-5">
+                        <input type="hidden" name="id" id="upload_company_id" value="">
+                        <div class="layui-upload-drag test11">
+                            <input type="file" name="logo" id="logo">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-12">
+                    <label class="col-md-3 control-label">企业封面</label>
+                    <div class="col-md-5">
+                        <div class="layui-upload-drag test11" id="cover">
+                            <input type="file" name="cover" id="cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="padding-left: 20px;">
+                <p style="color: red;">注：建议logo大小为80*80、封面大小为710*400效果最佳</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <a href="#" class="btn btn-danger upload_submit">
+                    <i class="fa fa-times-circle"></i>确认
+                </a>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+
 <div class="modal fade" id="modal-delete" tabIndex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -98,6 +169,12 @@
         </div>
     </div>
 </div>
+{{--设置table行高--}}
+    <style>
+        .bootstrap-table .table:not(.table-condensed)>tbody>tr>td{
+            line-height: 64px;
+        }
+    </style>
 @stop
 
 @section('js')
@@ -171,6 +248,30 @@
                 	}
                 },
                 {
+                    field:'logo',
+                    title: '企业log',
+                    formatter: function (value, row, index) {
+                        if (row['logo'] != null){
+                            return '<img src="/' +row['logo']+'" style="height: 60px;width: 60px;border-radius: 6px;" />';
+                        }else{
+                            return '<img src="/uploads/default/info.png" style="height: 60px;width: 60px;border-radius: 6px;" />';
+                        }
+
+                    }
+                },
+                {
+                    field:'cover',
+                    title: '企业封面图片',
+                    formatter: function (value, row, index) {
+                        if (row['cover'] != null){
+                            return '<img src="/' +row['cover']+'" style="height: 60px;width: 106.5px;border-radius: 6px;" />';
+                        }else{
+                            return '<img src="/uploads/default/2.png" style="height: 60px;width: 106.5px;border-radius: 6px;" />';
+                        }
+
+                    }
+                },
+                {
                 	field:'created_at',
                 	title: '创建时间',
                 	sortable: true,
@@ -205,9 +306,9 @@
                     title: '操作',
                     formatter: function (value, row, index) {
                         var html = '';
-                        html += '<a href="#" title="设置有效期" attr="'+ row['id'] +'" class="commbtnBtn btn btn-xs btn-success btn-editone">设置有效期 </a> ';
-                      
+                        html += '<a href="#" title="编辑" attr="'+ row['id'] +'" class="commbtnBtn btn btn-xs btn-success btn-editone">编辑 </a> ';
                         html += '<a href="#" title="删除" attr="'+ row['id'] +'" class="deleteBtn btn btn-xs btn-danger btn-editone">删除 </a> ';
+                        html += '<a href="#" title="删除" attr="'+ row['id'] +'" class="uploadBtn btn btn-xs btn-default btn-editone" style="color: ">上传LOGO和封面 </a> ';
                         return html;
                     }
                 },
@@ -253,8 +354,76 @@
             $('#nexttime1').val('');
             $('#company_id').val(id);
             $("#modal-comm").modal();
+            $("input[value= '矿山直营']").prop("checked", false);
+            $("input[value= '一级卖场']").prop("checked", false);
+            $("input[value= '矿山直营']").prop("checked", false);
+            $("input[value= '售后担保']").prop("checked", false);
+            $("input[value= '4']").prop("checked", false);
+            $("input[value= '1']").prop("checked", false);
+            $("input[value= '2']").prop("checked", false);
+            $("input[value= '3']").prop("checked", false);
+            $('.modal-backdrop').css({zIndex:'0'});
+            $.post(
+                '/admin/company/ajax/'+id,
+                {'type':1},
+                function (d) {
+                    if(d.status == 0){
+                        $("#name").val(d.data.company_name);
+                        $("#nexttime1").val(d.data.volid_time);
+                        if (d.data.label){
+                            var labels = JSON.parse(d.data.label);
+                            for(var i in labels){
+                                if(labels[i] === '矿山直营'){
+                                    $("input[value= '矿山直营']").prop("checked", true);
+                                }else if(labels[i] === '一级卖场'){
+                                    $("input[value= '一级卖场']").prop("checked", true);
+                                }else if(labels[i] === '矿山直营'){
+                                    $("input[value= '矿山直营']").prop("checked", true);
+                                }else if(labels[i] === '售后担保'){
+                                    $("input[value= '售后担保']").prop("checked", true);
+                                }
+                            }
+                        }
+                        if(d.data.sort == 4){
+                            $("input[value= '4']").prop("checked", true);
+                        }else if(d.data.sort == 1){
+                            $("input[value= '1']").prop("checked", true);
+                        }else if(d.data.sort == 2){
+                            $("input[value= '2']").prop("checked", true);
+                        }else if(d.data.sort == 3){
+                            $("input[value= '3']").prop("checked", true);
+                        }
+
+                    }else{
+                        alert('获取信息失败！！！');
+                    }
+                }
+            );
+        });
+      
+        $(document).on('click','.uploadBtn', function () {
+            var id = $(this).attr('attr');
+            $('#upload_company_id').val(id);
+            $("#modal-uptade").modal();
             $('.modal-backdrop').css({zIndex:'0'});
         });
+      
+        $(document).on('click','.upload_submit', function () {
+            var id = $('#upload_company_id').val();
+            var logo = $("input[name='logo']").val();
+            var cover = $("input[name='cover']").val();
+            if (id == ''){
+                alert('公司无效');return false;
+            }
+            if (logo == ''){
+                alert('请选择要上传的公司LOGO');return false;
+            }
+            if (cover == ''){
+                alert('请选择要上传的公司图片');return false;
+            }
+            $("#Form").submit();
+        });
+      
       
        $(document).on('click','.deleteBtn', function () {
             var id = $(this).attr('attr');
@@ -266,10 +435,15 @@
         $(document).on('click','.upd_time',function () {
             var id = $('#company_id').val();
             var volid_time = $('#nexttime1').val();
-
+            var name = $('#name').val();
+            var chk_value =[];//定义一个数组
+            $('input[name="label"]:checked').each(function(){//遍历每一个名字为interest的复选框，其中选中的执行函数
+                chk_value.push($(this).val());//将选中的值添加到数组chk_value中
+            });
+            var sort = $("input[name='sort']:checked").val();
             $.post(
                 '/admin/company/ajax/'+id,
-                {'volid_time':volid_time},
+                {'volid_time':volid_time,'name':name,'chk_value':chk_value,'sort':sort,'type':2},
                 function (d) {
                     if(d.status == 0){
                         alert('修改成功！！！');

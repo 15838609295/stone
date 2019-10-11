@@ -16,6 +16,8 @@ Route::post('login', 'LoginController@login');
 Route::get('logout', 'LoginController@logout');
 Route::post('logout', 'LoginController@logout');
 
+Route::any('compressedPictures', 'LoginController@picture');
+
 Route::get('/', 'IndexController@index');
 
 
@@ -54,6 +56,7 @@ Route::group(['middleware' => ['auth:admin', 'menu', 'authAdmin']], function () 
 	Route::post('company/deleteCompany/{id}', ['as' => 'admin.company.index', 'uses' => 'CompanyController@deleteCompany']);  //企业列表
 	Route::any('company/ajax/{id}', ['as' => 'admin.company.index', 'uses' => 'CompanyController@ajax']); //注销企业
 	Route::any('company/index', ['as' => 'admin.company.index', 'uses' => 'CompanyController@index']);  //企业列表
+  	Route::any('company/uploadLogo', [ 'uses' => 'CompanyController@uploadLogo']);  //上传企业图片
    
 	//用户列表路由
 	Route::any('members/index', ['as' => 'admin.members.index', 'uses' => 'MembersController@index']);  //用户列表
@@ -108,6 +111,10 @@ Route::group(['middleware' => ['auth:admin', 'menu', 'authAdmin']], function () 
     //市场概况
     Route::any('market_godown/info', ['as' => 'admin.market_godown.index', 'uses' => 'MarketController@info']);
     Route::any('market_godown/index', ['as' => 'admin.market_godown.index', 'uses' => 'MarketController@godownList']);
+    Route::any('market_godown/authentication', ['uses' => 'MarketController@authentication']);
+    Route::any('market_godown/unsetauthentication', ['uses' => 'MarketController@unsetauthentication']);
+    Route::any('market_godown/upperShelf', ['uses' => 'MarketController@upperShelf']);
+    Route::any('market_godown/lowerShelf', ['uses' => 'MarketController@lowerShelf']);
     Route::any('companyinfo/index', ['as' => 'admin.companyinfo.index', 'uses' => 'CompanyinfoController@index']);
 
     // 历史记录

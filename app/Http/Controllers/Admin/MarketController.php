@@ -26,7 +26,7 @@ class MarketController extends Controller
             $pageSize = $request->post("pageSize");   //一页显示的条数
             $search = $request->post("search",'');  //搜索条件
 
-            $sql = "select ga.goods_attr_name";
+            $sql = "select ga.goods_attr_name,ga.goods_attr_name,ga.authentication,ga.status";
             $sql .= ",(select count(gas.id) from goods_attr as gas where gas.goods_attr_name=ga.goods_attr_name) as company_number";
             $sql .= ",IFNULL((select sum(gs.godown_weight) from goods_attr as gas inner join godown as gs on gas.id=gs.goods_attr_id where gas.goods_attr_name=ga.goods_attr_name and gs.type=0),0.0) as market_h";
             $sql .= ",IFNULL((select sum(gs.godown_weight) from goods_attr as gas inner join godown as gs on gas.id=gs.goods_attr_id where gas.goods_attr_name=ga.goods_attr_name and gs.type=1),0.0) as market_d";
@@ -62,6 +62,8 @@ class MarketController extends Controller
                 $news[$k]['sale_d'] = sprintf('%.0f', $v->sale_d);
                 $news[$k]['sale_t'] = sprintf('%.0f', $v->sale_t);
                 $news[$k]['money_t'] = sprintf('%.0f', $v->money_t);
+                $news[$k]['authentication'] = sprintf('%.0f', $v->authentication);
+                $news[$k]['status'] = sprintf('%.0f', $v->status);
             }
 
             $data['rows'] = $news;
@@ -131,5 +133,65 @@ class MarketController extends Controller
 
         }
         return view('admin.market.info',['goods_attr_name'=>$request->goods_attr_name]);
+    }
+  
+    //添加认证
+    public function authentication(Request $request){
+        $name = $request->input('name','');
+        $where['goods_attr_name'] = $name;
+        $data['authentication'] = 1;
+        $data['updated_at'] = Carbon::now()->toDateTimeString();
+        $res = DB::table('goods_attr')->where($where)->update($data);
+        if (!$res){
+            $result['status'] = 1;
+        }else{
+            $result['status'] = 0;
+        }
+        return response()->json($result);
+    }
+
+    //取消认证
+    public function unsetauthentication(Request $request){
+        $name = $request->input('name','');
+        $where['goods_attr_name'] = $name;
+        $data['authentication'] = 0;
+        $data['updated_at'] = Carbon::now()->toDateTimeString();
+        $res = DB::table('goods_attr')->where($where)->update($data);
+        if (!$res){
+            $result['status'] = 1;
+        }else{
+            $result['status'] = 0;
+        }
+        return response()->json($result);
+    }
+
+    //上架
+    public function upperShelf(Request $request){
+        $name = $request->input('name','');
+        $where['goods_attr_name'] = $name;
+        $data['status'] = 1;
+        $data['updated_at'] = Carbon::now()->toDateTimeString();
+        $res = DB::table('goods_attr')->where($where)->update($data);
+        if (!$res){
+            $result['status'] = 1;
+        }else{
+            $result['status'] = 0;
+        }
+        return response()->json($result);
+    }
+
+    //下架
+    public function lowerShelf(Request $request){
+        $name = $request->input('name','');
+        $where['goods_attr_name'] = $name;
+        $data['status'] = 0;
+        $data['updated_at'] = Carbon::now()->toDateTimeString();
+        $res = DB::table('goods_attr')->where($where)->update($data);
+        if (!$res){
+            $result['status'] = 1;
+        }else{
+            $result['status'] = 0;
+        }
+        return response()->json($result);
     }
 }

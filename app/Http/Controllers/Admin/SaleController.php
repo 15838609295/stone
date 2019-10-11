@@ -176,10 +176,10 @@ class SaleController extends Controller{
 
             $query = Sale::whereIn('godown_id',$godown_ids)->orderBy($sortName, $sortOrder);
 
-            if($pageSize != 'All'){
-                $start = ($pageNumber-1)*$pageSize;   //开始位置
-                $query->limit($start, $pageSize);
-            }
+            //if($pageSize != 'All'){
+                //$start = ($pageNumber-1)*$pageSize;   //开始位置
+                //$query->limit($start, $pageSize);
+            //}
 
             $total = $query->get();
             if(!$total){
@@ -291,7 +291,6 @@ class SaleController extends Controller{
 
             $data['total'] = count($new);
             $data['rows'] = $new;
-
             return response()->json($data);
 
         }
